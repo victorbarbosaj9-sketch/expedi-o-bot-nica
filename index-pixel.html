@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expedição Botânica - Retro Pixel Art</title>
+  
+  <!-- Importando a fonte estilo Pixel Art do Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================
+       VARIÁVEIS DE COR RETRO (Gameboy Advance style)
+    ========================================= */
+    :root {
+      --bg-dark: #1e3323;
+      --bg-grid: #28422e;
+      --box-bg: #e0f8d0;
+      --box-border: #315139;
+      --text-color: #223826;
+      --btn-bg: #88c070;
+      --btn-hover: #98db7a;
+      --btn-select: #346856;
+      --btn-select-text: #e0f8d0;
+      --accent: #e56b55;
+    }
+
+    /* =========================================
+       RESET E FUNDO ANIMADO
+    ========================================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Press Start 2P', cursive; /* Fonte Pixel Art */
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      /* Fundo quadriculado simulando textura de jogo de GBA */
+      background-image: 
+        linear-gradient(var(--bg-grid) 2px, transparent 2px),
+        linear-gradient(90deg, var(--bg-grid) 2px, transparent 2px);
+      background-size: 30px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: var(--text-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* =========================================
+       ANIMAÇÃO DE "FOLHAS PIXELADAS" CAINDO
+    ========================================= */
+    .folha-pixel {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--btn-bg);
+      box-shadow: -5px 5px 0 #5f8d4e;
+      top: -20px;
+      z-index: 1;
+      /* Animação com steps para parecer baixo framerate de jogo antigo */
+      animation: cair 8s steps(30) infinite, balancar 2s steps(4) infinite alternate;
+    }
+
+    /* Posições aleatórias para as folhas */
+    .f1 { left: 10%; animation-delay: 0s; }
+    .f2 { left: 30%; animation-delay: 2s; background-color: #a4d38e; }
+    .f3 { left: 60%; animation-delay: 4s; }
+    .f4 { left: 85%; animation-delay: 1s; background-color: #6a9c54; }
+    .f5 { left: 50%; animation-delay: 6s; }
+
+    @keyframes cair {
+      0% { top: -20px; opacity: 1; }
+      100% { top: 100vh; opacity: 0; }
+    }
+    @keyframes balancar {
+      0% { transform: translateX(0px); }
+      100% { transform: translateX(20px); }
+    }
+
+    /* =========================================
+       CAIXAS ESTILO RPG (RPG Text Box)
+    ========================================= */
+    .caixa-rpg {
+      background-color: var(--box-bg);
+      /* O truque do Box-Shadow para criar uma borda pixelada de cantos duros */
+      box-shadow: 
+        0 -6px 0 var(--box-border), 0 6px 0 var(--box-border), 
+        -6px 0 0 var(--box-border), 6px 0 0 var(--box-border), 
+        -6px -6px 0 var(--box-border), 6px -6px 0 var(--box-border), 
+        -6px 6px 0 var(--box-border), 6px 6px 0 var(--box-border);
+      padding: 25px;
+      position: relative;
+      z-index: 10;
+      /* Movimento de flutuação estilo idle de RPG */
+      animation: flutuar 4s steps(6) infinite alternate;
+    }
+
+    @keyframes flutuar {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-8px); }
+    }
+
+    /* =========================================
+       BOTÃO "SOBRE" (Canto Superior Direito)
+    ========================================= */
+    #btn-sobre {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      width: 40px;
+      height: 40px;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 20;
+      box-shadow: 
+        0 -4px 0 #8b3425, 0 4px 0 #8b3425, 
+        -4px 0 0 #8b3425, 4px 0 0 #8b3425;
+      transition: transform 0.1s;
+    }
+    #btn-sobre:active { transform: translateY(4px); }
+
+    /* =========================================
+       MENU PRINCIPAL E TÍTULO
+    ========================================= */
+    #menu-container {
+      width: 90%;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .titulo-box h1 {
+      font-size: 20px;
+      line-height: 1.6;
+      text-align: center;
+      color: var(--text-color);
+      text-shadow: 2px 2px 0px #a4d38e;
+    }
+
+    /* Ícone de broto ao lado do título */
+    .broto { color: var(--btn-select); font-size: 24px; }
+
+    /* =========================================
+       SELEÇÃO DE JOGADORES (Botões Pixelados)
+    ========================================= */
+    .selecao-box {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .selecao-box h3 {
+      font-size: 10px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      color: var(--text-color);
+    }
+
+    .botoes-jogadores {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .btn-jogador {
+      background-color: var(--box-bg);
+      border: none;
+      color: var(--text-color);
+      font-size: 14px;
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      box-shadow: 
+        0 -3px 0 var(--box-border), 0 3px 0 var(--box-border), 
+        -3px 0 0 var(--box-border), 3px 0 0 var(--box-border);
+      transition: background-color 0.1s;
+    }
+
+    /* Estado de Hover e Selecionado */
+    .btn-jogador:hover { background-color: var(--btn-hover); }
+    
+    .btn-jogador.selecionado {
+      background-color: var(--btn-select);
+      color: var(--btn-select-text);
+      transform: translateY(3px);
+      box-shadow: 
+        0 -3px 0 var(--box-border), 0 0px 0 var(--box-border), 
+        -3px 0 0 var(--box-border), 3px 0 0 var(--box-border);
+    }
+
+    /* =========================================
+       BOTÃO START / JOGAR
+    ========================================= */
+    #btn-jogar {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      border: none;
+      font-size: 16px;
+      padding: 20px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 
+        0 -4px 0 var(--box-border), 0 4px 0 var(--box-border), 
+        -4px 0 0 var(--box-border), 4px 0 0 var(--box-border);
+      margin-top: 10px;
+      animation: piscar 2s steps(2) infinite; /* Efeito piscar de fliperama */
+    }
+
+    #btn-jogar:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 var(--box-border);
+    }
+
+    @keyframes piscar {
+      0% { color: var(--text-color); }
+      50% { color: #fff; }
+      100% { color: var(--text-color); }
+    }
+
+    /* =========================================
+       MODAL (POP-UP "SOBRE")
+    ========================================= */
+    #modal-sobre {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(15, 26, 17, 0.85); /* Fundo verde escuro transparente */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
+      padding: 15px;
+    }
+
+    #modal-sobre.ativo {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 400px;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .btn-fechar {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      width: 35px; height: 35px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 -3px 0 #8b3425, 0 3px 0 #8b3425, -3px 0 0 #8b3425, 3px 0 0 #8b3425;
+    }
+
+    .modal-content h2 { font-size: 14px; margin-bottom: 20px; line-height: 1.5; color: var(--btn-select); }
+    .modal-content h3 { font-size: 10px; margin-bottom: 25px; line-height: 1.6; color: var(--text-color); }
+    .modal-content p { font-size: 10px; margin-bottom: 15px; color: var(--accent); }
+    
+    .lista-nomes {
+      list-style: none;
+      text-align: left;
+      background-color: #cde6ba;
+      padding: 15px;
+      box-shadow: inset 4px 4px 0 rgba(0,0,0,0.1);
+    }
+
+    .lista-nomes li {
+      font-size: 9px;
+      line-height: 1.8;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+    .lista-nomes li::before { content: "► "; color: var(--btn-select); }
+
+    /* Responsividade para telas menores */
+    @media (max-width: 400px) {
+      .titulo-box h1 { font-size: 16px; }
+      .btn-jogador { width: 35px; height: 35px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Folhas Pixeladas caindo ao fundo -->
+  <div class="folha-pixel f1"></div>
+  <div class="folha-pixel f2"></div>
+  <div class="folha-pixel f3"></div>
+  <div class="folha-pixel f4"></div>
+  <div class="folha-pixel f5"></div>
+
+  <!-- Botão de Informação no Canto -->
+  <button id="btn-sobre" onclick="abrirModal()">?</button>
+
+  <div id="menu-container">
+    
+    <!-- Título do Jogo -->
+    <div class="caixa-rpg titulo-box">
+      <h1><span class="broto">🌱</span><br><br>EXPEDIÇÃO<br>BOTÂNICA</h1>
+    </div>
+
+    <!-- Seletor de Quantidade de Jogadores -->
+    <div class="caixa-rpg selecao-box">
+      <h3>ESCOLHA O NÚMERO DE JOGADORES:</h3>
+      <div class="botoes-jogadores">
+        <button class="btn-jogador selecionado" onclick="selecionarJogadores(2, this)">2</button>
+        <button class="btn-jogador" onclick="selecionarJogadores(3, this)">3</button>
+        <button class="btn-jogador" onclick="selecionarJogadores(4, this)">4</button>
+        <button class="btn-jogador" onclick="selecionarJogadores(5, this)">5</button>
+      </div>
+    </div>
+
+    <!-- Botão Principal -->
+    <button id="btn-jogar" class="caixa-rpg" onclick="iniciarJogo()">START</button>
+
+  </div>
+
+  <!-- Modal "Sobre" Estilo Caixa de Diálogo de RPG -->
+  <div id="modal-sobre">
+    <div class="caixa-rpg modal-content">
+      <button class="btn-fechar" onclick="fecharModal()">X</button>
+      <h2>ATIVIDADE DE SISTEMÁTICA</h2>
+      <h3>JOGO DIDÁTICO<br><br>ENSINO DE BOTÂNICA</h3>
+      <p>GRUPO:</p>
+      
+      <ul class="lista-nomes">
+        <li>JOÃO VICTOR BARBOSA DE OLIVEIRA</li>
+        <li>[NOME DO ALUNO 2]</li>
+        <li>[NOME DO ALUNO 3]</li>
+        <li>[NOME DO ALUNO 4]</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Lógica JavaScript -->
+  <script>
+    let quantidadeJogadores = 2; // Padrão é 2 jogadores
+
+    // Efeito sonoro simulado nas funções (apenas console por enquanto, 
+    // mas deixa preparado caso você queira colocar um áudio .mp3 de "blip")
+    function playBeep() { console.log("*Beep Retro*"); }
+
+    function selecionarJogadores(qtd, botaoClicado) {
+      playBeep();
+      quantidadeJogadores = qtd;
+
+      const todosBotoes = document.querySelectorAll('.btn-jogador');
+      todosBotoes.forEach(btn => btn.classList.remove('selecionado'));
+      botaoClicado.classList.add('selecionado');
+    }
+
+    function iniciarJogo() {
+      playBeep();
+      localStorage.setItem('expedicao_jogadores', quantidadeJogadores);
+      // Redireciona para o tabuleiro principal
+      setTimeout(() => {
+        window.location.href = "index.html"; 
+      }, 300); // pequeno delay para a animação do botão ser percebida
+    }
+
+    function abrirModal() {
+      playBeep();
+      document.getElementById('modal-sobre').classList.add('ativo');
+    }
+
+    function fecharModal() {
+      playBeep();
+      document.getElementById('modal-sobre').classList.remove('ativo');
+    }
+  </script>
+
+</body>
+</html>
