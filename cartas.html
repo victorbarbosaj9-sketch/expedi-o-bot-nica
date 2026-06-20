@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartas de Pergunta</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #1a1a1a;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+    #area-jogo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 350px;
+      padding: 20px;
+    }
+    .carta {
+      background-color: #f1f8e9;
+      border: 6px solid #558b2f;
+      border-radius: 15px;
+      padding: 25px 20px;
+      width: 100%;
+      min-height: 300px;
+      box-shadow: inset 0 0 0 4px #c5e1a5, 0 12px 25px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .carta.verso {
+      background-color: #33691e;
+      background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+      color: white;
+      cursor: pointer;
+      border-color: #f1f8e9;
+    }
+    .carta.verso h2 { font-size: 28px; letter-spacing: 2px; text-transform: uppercase; }
+    .carta.verso:hover { transform: translateY(-10px); }
+    #texto-pergunta {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1e4d0d;
+      margin-bottom: 20px;
+    }
+    .alternativas-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn-alternativa {
+      background-color: white;
+      border: 2px solid #aed581;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-alternativa:hover {
+      background-color: #e8f5e9;
+      border-color: #7ed957;
+    }
+    .btn-alternativa.correta {
+      background-color: #7ed957;
+      color: #1e4d0d;
+      border-color: #558b2f;
+    }
+    .btn-alternativa.errada {
+      background-color: #ff5252;
+      color: white;
+      border-color: #c62828;
+    }
+    #btn-acao {
+      background-color: #ffb300;
+      color: #424242;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #ff8f00;
+      transition: all 0.1s;
+      width: 100%;
+      text-transform: uppercase;
+      display: none;
+    }
+    #btn-acao:active { transform: translateY(5px); box-shadow: 0 0 0 #ff8f00; }
+  </style>
+</head>
+<body>
+
+  <div id="area-jogo">
+    <div id="carta-container" class="carta verso" onclick="puxarCarta()">
+      <h2 id="titulo-verso">Puxar Carta</h2>
+      <div id="frente-carta" style="display: none;">
+        <p id="texto-pergunta">Aqui vai a pergunta sorteada?</p>
+        <div id="botoes-alternativas" class="alternativas-container"></div>
+      </div>
+    </div>
+    <button id="btn-acao">🎲 Jogar os Dados</button>
+  </div>
+
+  <script>
+    const bancoPerguntas = [
+      {
+        pergunta: "Qual é o processo pelo qual as plantas produzem seu próprio alimento?",
+        alternativas: ["Polinização", "Fotossíntese", "Respiração Celular", "Germinação"],
+        respostaCerta: 1
+      },
+      {
+        pergunta: "Qual dessas árvores é considerada um símbolo nacional do Brasil?",
+        alternativas: ["Ipê-Amarelo", "Carvalho", "Pinheiro", "Baobá"],
+        respostaCerta: 0
+      },
+      {
+        pergunta: "As abelhas são fundamentais para a natureza pois realizam a...",
+        alternativas: ["Transpiração", "Fotossíntese", "Polinização", "Decomposição"],
+        respostaCerta: 2
+      },
+      {
+        pergunta: "O que caracteriza as plantas Angiospermas?",
+        alternativas: ["Ausência de raízes", "Presença de flores e frutos", "Crescimento apenas na água", "Não produzem sementes"],
+        respostaCerta: 1
+      },
+      {
+        pergunta: "Qual a função principal das raízes em uma planta?",
+        alternativas: ["Realizar fotossíntese", "Atrair polinizadores", "Fixação e absorção de água/nutrientes", "Produzir frutos"],
+        respostaCerta: 2
+      }
+    ];
+
+    let perguntaAtual = null;
+    let jaRespondeu = false;
+
+    function puxarCarta() {
+      if (!document.getElementById('carta-container').classList.contains('verso')) return;
+
+      const indiceSorteado = Math.floor(Math.random() * bancoPerguntas.length);
+      perguntaAtual = bancoPerguntas[indiceSorteado];
+      jaRespondeu = false;
+
+      document.getElementById('carta-container').classList.remove('verso');
+      document.getElementById('titulo-verso').style.display = 'none';
+      document.getElementById('frente-carta').style.display = 'block';
+      document.getElementById('texto-pergunta').innerText = perguntaAtual.pergunta;
+      
+      const divBotoes = document.getElementById('botoes-alternativas');
+      divBotoes.innerHTML = '';
+
+      perguntaAtual.alternativas.forEach((texto, index) => {
+        const btn = document.createElement('button');
+        btn.innerText = texto;
+        btn.className = 'btn-alternativa';
+        btn.onclick = () => verificarResposta(index, btn);
+        divBotoes.appendChild(btn);
+      });
+    }
+
+    function verificarResposta(indiceEscolhido, botaoClicado) {
+      if (jaRespondeu) return;
+      jaRespondeu = true;
+
+      const btnAcao = document.getElementById('btn-acao');
+      const todosBotoes = document.querySelectorAll('.btn-alternativa');
+
+      if (indiceEscolhido === perguntaAtual.respostaCerta) {
+        botaoClicado.classList.add('correta');
+        btnAcao.innerText = "🎲 Jogar os Dados";
+        btnAcao.style.backgroundColor = "#ffb300";
+        btnAcao.style.boxShadow = "0 5px 0 #ff8f00";
+        btnAcao.style.display = "block";
+        btnAcao.onclick = irParaDados;
+      } else {
+        botaoClicado.classList.add('errada');
+        todosBotoes[perguntaAtual.respostaCerta].classList.add('correta');
+        btnAcao.innerText = "❌ Passar a Vez";
+        btnAcao.style.backgroundColor = "#ff5252";
+        btnAcao.style.boxShadow = "0 5px 0 #c62828";
+        btnAcao.style.color = "white";
+        btnAcao.style.display = "block";
+        btnAcao.onclick = passarVez;
+      }
+    }
+
+    function irParaDados() {
+      window.location.href = "./dados.html";
+    }
+
+    function passarVez() {
+      // Avança o turno para o próximo jogador já que este errou
+      let turn = parseInt(localStorage.getItem('turno_atual') || '0') || 0;
+      let players = [];
+      try {
+        const raw = localStorage.getItem('expedicao_jogadores');
+        if (raw) {
+          const p = JSON.parse(raw);
+          players = Array.isArray(p) ? p : Array.from({ length: p });
+        }
+      } catch (_) {}
+      if (!players.length) players = [{}, {}];
+
+      turn = (turn + 1) % players.length;
+      localStorage.setItem('turno_atual', turn);
+      localStorage.setItem('casas_para_andar', '0'); // Não anda nenhuma casa
+      window.location.href = "./mapa.html";
+    }
+  </script>
+</body>
+</html>
