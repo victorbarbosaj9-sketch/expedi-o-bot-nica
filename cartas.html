@@ -12,7 +12,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       color: #333;
     }
     #area-jogo {
@@ -23,6 +23,15 @@
       width: 100%;
       max-width: 350px;
       padding: 20px;
+    }
+    .perguntas-badge {
+      background: #1e3a0e;
+      border: 1px solid #4a8a20;
+      border-radius: 20px;
+      padding: 4px 12px;
+      color: #8aca40;
+      font-size: 13px;
+      align-self: flex-end;
     }
     .carta {
       background-color: #f1f8e9;
@@ -45,14 +54,42 @@
       cursor: pointer;
       border-color: #f1f8e9;
     }
-    .carta.verso h2 { font-size: 28px; letter-spacing: 2px; text-transform: uppercase; }
+    .carta.verso h2 {
+      font-size: 28px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
     .carta.verso:hover { transform: translateY(-10px); }
+    .carta.esgotada {
+      background-color: #2a1a0a;
+      border-color: #c8880a;
+      color: #f5c542;
+      cursor: default;
+      text-align: center;
+      font-size: 18px;
+      gap: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
     #texto-pergunta {
       font-size: 18px;
       font-weight: bold;
       color: #1e4d0d;
       margin-bottom: 20px;
     }
+    .nivel-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .nivel-facil { background: #a5d6a7; color: #1b5e20; }
+    .nivel-medio { background: #fff59d; color: #f57f17; }
+    .nivel-dificil { background: #ef9a9a; color: #b71c1c; }
     .alternativas-container {
       display: flex;
       flex-direction: column;
@@ -68,21 +105,11 @@
       color: #333;
       cursor: pointer;
       transition: all 0.2s;
+      text-align: left;
     }
-    .btn-alternativa:hover {
-      background-color: #e8f5e9;
-      border-color: #7ed957;
-    }
-    .btn-alternativa.correta {
-      background-color: #7ed957;
-      color: #1e4d0d;
-      border-color: #558b2f;
-    }
-    .btn-alternativa.errada {
-      background-color: #ff5252;
-      color: white;
-      border-color: #c62828;
-    }
+    .btn-alternativa:hover { background-color: #e8f5e9; border-color: #7ed957; }
+    .btn-alternativa.correta { background-color: #7ed957; color: #1e4d0d; border-color: #558b2f; }
+    .btn-alternativa.errada  { background-color: #ff5252; color: white; border-color: #c62828; }
     #btn-acao {
       background-color: #ffb300;
       color: #424242;
@@ -102,12 +129,13 @@
   </style>
 </head>
 <body>
-
   <div id="area-jogo">
+    <div class="perguntas-badge" id="perguntas-badge">🃏 Carregando...</div>
     <div id="carta-container" class="carta verso" onclick="puxarCarta()">
       <h2 id="titulo-verso">Puxar Carta</h2>
       <div id="frente-carta" style="display: none;">
-        <p id="texto-pergunta">Aqui vai a pergunta sorteada?</p>
+        <div id="nivel-badge" class="nivel-badge"></div>
+        <p id="texto-pergunta"></p>
         <div id="botoes-alternativas" class="alternativas-container"></div>
       </div>
     </div>
@@ -116,32 +144,63 @@
 
   <script>
     const bancoPerguntas = [
-      {
-        pergunta: "Qual é o processo pelo qual as plantas produzem seu próprio alimento?",
-        alternativas: ["Polinização", "Fotossíntese", "Respiração Celular", "Germinação"],
-        respostaCerta: 1
-      },
-      {
-        pergunta: "Qual dessas árvores é considerada um símbolo nacional do Brasil?",
-        alternativas: ["Ipê-Amarelo", "Carvalho", "Pinheiro", "Baobá"],
-        respostaCerta: 0
-      },
-      {
-        pergunta: "As abelhas são fundamentais para a natureza pois realizam a...",
-        alternativas: ["Transpiração", "Fotossíntese", "Polinização", "Decomposição"],
-        respostaCerta: 2
-      },
-      {
-        pergunta: "O que caracteriza as plantas Angiospermas?",
-        alternativas: ["Ausência de raízes", "Presença de flores e frutos", "Crescimento apenas na água", "Não produzem sementes"],
-        respostaCerta: 1
-      },
-      {
-        pergunta: "Qual a função principal das raízes em uma planta?",
-        alternativas: ["Realizar fotossíntese", "Atrair polinizadores", "Fixação e absorção de água/nutrientes", "Produzir frutos"],
-        respostaCerta: 2
-      }
+      // --- NÍVEL FÁCIL ---
+      { nivel: 'fácil', pergunta: "O que caracteriza morfologicamente as plantas do grupo das fanerógamas em relação aos grupos mais basais?", alternativas: ["Ausência de vasos condutores","Dependência da água para reprodução","Presença de sementes e estruturas reprodutivas visíveis","Fase gametofítica como dominante"], respostaCerta: 2 },
+      { nivel: 'fácil', pergunta: "Qual é a característica evolutiva e taxonômica exclusiva que separa as angiospermas das gimnospermas?", alternativas: ["Presença de raiz, caule e folha","Formação de sementes protegidas por frutos","Crescimento secundário em espessura","Produção de grãos de pólen"], respostaCerta: 1 },
+      { nivel: 'fácil', pergunta: "Na botânica sistemática clássica, qual botânico é reconhecido por popularizar o sistema binomial de nomenclatura para as espécies?", alternativas: ["Charles Darwin","Gregor Mendel","Carl Linnaeus (Lineu)","Theophrastus"], respostaCerta: 2 },
+      { nivel: 'fácil', pergunta: "As monocotiledôneas e eudicotiledôneas são os dois maiores grupos de angiospermas. Qual padrão de nervação foliar é uma característica diagnóstica típica das monocotiledôneas?", alternativas: ["Nervação reticulada (ramificada)","Nervação paralela (paralelinérvea)","Nervação dicotômica","Ausência de nervuras visíveis"], respostaCerta: 1 },
+      { nivel: 'fácil', pergunta: "Na hierarquia taxonômica das plantas, qual categoria está imediatamente acima de 'Gênero' e reúne gêneros com parentesco próximo?", alternativas: ["Espécie","Ordem","Classe","Família"], respostaCerta: 3 },
+      { nivel: 'fácil', pergunta: "O termo 'Gimnosperma' deriva do grego e faz referência a qual característica morfológica marcante desse grupo?", alternativas: ["Sementes nuas (não abrigadas em frutos)","Flores com pétalas muito vistosas","Raízes ausentes","Folhas largas e caducas"], respostaCerta: 0 },
+      { nivel: 'fácil', pergunta: "Qual é a unidade básica e fundamental da classificação taxonômica biológica?", alternativas: ["Família","Ordem","Espécie","Gênero"], respostaCerta: 2 },
+      { nivel: 'fácil', pergunta: "O milho, a grama, os lírios e as orquídeas são classificados taxonomicamente em qual grande grupo de angiospermas?", alternativas: ["Gimnospermas","Eudicotiledôneas","Dicotiledôneas basais","Monocotiledôneas"], respostaCerta: 3 },
+      { nivel: 'fácil', pergunta: "Na anatomia e taxonomia floral, o verticilo formado pelo conjunto de pétalas de uma flor recebe qual nome botânico?", alternativas: ["Cálice","Corola","Androceu","Gineceu"], respostaCerta: 1 },
+      { nivel: 'fácil', pergunta: "Qual estrutura representa o gametófito masculino (parcialmente desenvolvido) responsável pelo transporte dos gametas nas fanerógamas?", alternativas: ["Óvulo","Grão de pólen","Semente","Soro"], respostaCerta: 1 },
+
+      // --- NÍVEL MÉDIO ---
+      { nivel: 'médio', pergunta: "De acordo com o Código Internacional de Nomenclatura Botânica, qual é o sufixo padronizado para nomear a categoria taxonômica de Família?", alternativas: ["-ales","-aceae","-phyta","-oideae"], respostaCerta: 1 },
+      { nivel: 'médio', pergunta: "A família Asteraceae (girassóis, margaridas) é uma das maiores e mais evoluídas famílias botânicas. Qual é a sua característica taxonômica mais marcante?", alternativas: ["Inflorescência em formato de capítulo","Fruto do tipo legume","Flores agrupadas em umbela simples","Sementes aladas sem fruto"], respostaCerta: 0 },
+      { nivel: 'médio', pergunta: "Na sistemática das gimnospermas, qual divisão possui atualmente apenas uma única espécie vivente, frequentemente chamada de 'fóssil vivo'?", alternativas: ["Coniferophyta","Cycadophyta","Ginkgophyta","Gnetophyta"], respostaCerta: 2 },
+      { nivel: 'médio', pergunta: "Qual é a principal estrutura reprodutiva que agrupa os esporângios e é utilizada para a classificação das gimnospermas (como os pinheiros)?", alternativas: ["Flor zigomorfa","Estróbilo ou cone","Cápsula de esporos","Soros na face abaxial da folha"], respostaCerta: 1 },
+      { nivel: 'médio', pergunta: "Na taxonomia floral, uma flor que pode ser dividida em duas metades simétricas por apenas um único plano de corte é classificada como:", alternativas: ["Actinomorfa","Zigomorfa","Assimétrica","Isomorfa"], respostaCerta: 1 },
+      { nivel: 'médio', pergunta: "A família Fabaceae (leguminosas) é dividida em subfamílias importantes. Qual característica morfológica do fruto unifica taxonomicamente quase toda esta família?", alternativas: ["Fruto carnoso tipo baga","Fruto seco deiscente tipo legume (vagem)","Fruto indeiscente tipo sâmara","Fruto composto tipo sicônio"], respostaCerta: 1 },
+      { nivel: 'médio', pergunta: "Na sistemática filogenética (cladística), agrupamentos naturais de plantas devem ser monofiléticos. Isso significa que eles devem ser formados baseando-se em:", alternativas: ["Simplesiomorfias (caracteres primitivos retidos)","Características morfológicas análogas","Sinapomorfias (caracteres derivados compartilhados)","Convergência evolutiva (homoplasias)"], respostaCerta: 2 },
+      { nivel: 'médio', pergunta: "A organização dos feixes vasculares espalhados de forma difusa pelo caule (atactostelo) e flores com peças em múltiplos de três (trímeras) são caracteres diagnósticos de qual grupo?", alternativas: ["Gimnospermas","Eudicotiledôneas","Monocotiledôneas","Angiospermas basais"], respostaCerta: 2 },
+      { nivel: 'médio', pergunta: "O sistema de classificação APG (Angiosperm Phylogeny Group) revolucionou a taxonomia vegetal moderna. Ele se baseia primariamente em qual tipo de evidência para traçar a filogenia?", alternativas: ["Anatomia da madeira","Sequências moleculares de DNA","Morfologia exclusiva de sementes","Distribuição fitogeográfica global"], respostaCerta: 1 },
+      { nivel: 'médio', pergunta: "Nas gramíneas (Poaceae), a inflorescência elementar que apresenta flores diminutas protegidas por brácteas especializadas (glumas e lemas) é denominada:", alternativas: ["Capítulo","Espigueta","Umbela","Corimbo"], respostaCerta: 1 },
+      { nivel: 'médio', pergunta: "Se uma flor possui o cálice e a corola com cores, formas e texturas idênticas (como nos lírios), essas peças não diferenciadas são chamadas de tépalas. O conjunto de tépalas forma o:", alternativas: ["Perigônio","Hipanto","Receptáculo","Involúcro"], respostaCerta: 0 },
+      { nivel: 'médio', pergunta: "A presença de raízes pivotantes (axiais) e folhas com padrão de venação reticulada (ramificada) são caracteres diagnósticos clássicos em qual grupo?", alternativas: ["Monocotiledôneas","Eudicotiledôneas","Pteridófitas","Coníferas estritas"], respostaCerta: 1 },
+
+      // --- NÍVEL DIFÍCIL ---
+      { nivel: 'difícil', pergunta: "Qual é a principal sinapomorfia anatômica/palinológica que define com clareza o vasto clado das Eudicotiledôneas no sistema APG?", alternativas: ["Pólen monossulcado","Óvulos com tegumento único","Pólen tricolpado (ou derivado deste)","Presença de câmbio vascular ativo"], respostaCerta: 2 },
+      { nivel: 'difícil', pergunta: "No contexto da sistemática molecular e do grau ANITA, qual gênero/família endêmica da Nova Caledônia é considerada filogeneticamente como o grupo-irmão de todas as outras angiospermas viventes?", alternativas: ["Magnolia (Magnoliaceae)","Nymphaea (Nymphaeaceae)","Illicium (Schisandraceae)","Amborella (Amborellaceae)"], respostaCerta: 3 },
+      { nivel: 'difícil', pergunta: "Nas regras do Código Internacional de Nomenclatura para algas, fungos e plantas (ICN), o que estabelece o 'Princípio da Prioridade'?", alternativas: ["A classificação genômica tem prioridade sobre a morfológica.","O nome correto de um táxon é o nome legítimo mais antigo validamente publicado para ele.","Famílias descritas por Lineu não podem sofrer alterações filogenéticas.","O gênero sempre adota o nome da espécie mais abundante do clado."], respostaCerta: 1 },
+      { nivel: 'difícil', pergunta: "Dentro das Eudicotiledôneas nucleares (Core Eudicots), a divisão em dois grandes clados (Rosídeas e Asterídeas) reflete tendências evolutivas. As Asterídeas geralmente se diferenciam por apresentarem predominantemente:", alternativas: ["Flores dialipétalas e estames numerosos","Corola simpétala (pétalas unidas) e número de estames igual ou menor que os lobos da corola","Placentação parietal e frutos do tipo síliqua","Gineceu apocárpico e desenvolvimento do endosperma nuclear"], respostaCerta: 1 },
+      { nivel: 'difícil', pergunta: "Historicamente, devido à presença de elementos de vaso na madeira e estróbilos complexos semelhantes a inflorescências, qual ordem de gimnospermas foi considerada por muito tempo como o possível ancestral ou grupo-irmão das angiospermas (hipótese antófita)?", alternativas: ["Cycadales","Pinales","Gnetales","Ginkgoales"], respostaCerta: 2 },
+      { nivel: 'difícil', pergunta: "Nas gimnospermas, o tecido de reserva da semente que nutrirá o embrião tem qual origem e ploidia celular?", alternativas: ["Resulta da dupla fecundação (triploide)","É originado diretamente do tecido vegetativo do gametófito feminino (haploide)","Desenvolve-se a partir do tegumento do óvulo (diploide)","Origina-se do material do tubo polínico (diploide)"], respostaCerta: 1 },
+      { nivel: 'difícil', pergunta: "Em taxonomia botânica, qual é a definição estrita e oficial do termo 'Holótipo'?", alternativas: ["Qualquer espécime vivo mantido e catalogado em um jardim botânico","O espécime físico único designado pelo autor na publicação original para fixar a aplicação do nome da espécie","Uma ilustração botânica detalhada de alta qualidade","Um registro fóssil que prova a evolução de uma família botânica"], respostaCerta: 1 },
+      { nivel: 'difícil', pergunta: "Considerando a posição do ovário em relação à inserção das outras peças florais no receptáculo, uma flor classificada como 'epígina' é aquela que possui um ovário:", alternativas: ["Súpero","Semi-ínfero","Ínfero","Ausente (característica exclusiva de flores estaminadas)"], respostaCerta: 2 },
+      { nivel: 'difícil', pergunta: "O grande clado das Magnoliídeas (que inclui famílias como Magnoliaceae, Lauraceae e Piperaceae) ocupa qual posição na filogenia moderna do sistema APG IV?", alternativas: ["São as angiospermas mais basais viventes (grupo ANITA)","Formam o clado irmão mais próximo das monocotiledôneas","São eudicotiledôneas altamente derivadas","Formam um grande clado independente que divergiu antes da grande divisão entre monocotiledôneas e eudicotiledôneas"], respostaCerta: 3 },
+      { nivel: 'difícil', pergunta: "Nas flores da família Brassicaceae (como as couves e mostardas), existe um arranjo morfológico clássico no androceu chamado de 'tetradínamo'. O que essa característica anatômica descreve?", alternativas: ["Quatro estames idênticos fortemente fundidos por suas anteras","Seis estames no total, sendo quatro centrais mais longos e dois laterais mais curtos","Quatro estames transformados em estaminódios estéreis e um fértil","Oito estames divididos simetricamente em dois verticilos distantes"], respostaCerta: 1 }
     ];
+
+    // ── CONTROLE DE PERGUNTAS JÁ USADAS NA PARTIDA ──
+    function getUsadas() {
+      try {
+        const raw = localStorage.getItem('expedicao_perguntas_usadas');
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      return [];
+    }
+    function saveUsadas(arr) {
+      localStorage.setItem('expedicao_perguntas_usadas', JSON.stringify(arr));
+    }
+
+    function updateBadge() {
+      const usadas = getUsadas();
+      const restantes = bancoPerguntas.length - usadas.length;
+      document.getElementById('perguntas-badge').textContent =
+        `🃏 ${restantes} de ${bancoPerguntas.length} perguntas restantes`;
+    }
 
     let perguntaAtual = null;
     let jaRespondeu = false;
@@ -149,21 +208,45 @@
     function puxarCarta() {
       if (!document.getElementById('carta-container').classList.contains('verso')) return;
 
-      const indiceSorteado = Math.floor(Math.random() * bancoPerguntas.length);
-      perguntaAtual = bancoPerguntas[indiceSorteado];
+      const usadas = getUsadas();
+      const disponiveis = bancoPerguntas
+        .map((_, i) => i)
+        .filter(i => !usadas.includes(i));
+
+      if (disponiveis.length === 0) {
+        // Todas as perguntas já foram usadas — reinicia o ciclo
+        saveUsadas([]);
+        const cont = document.getElementById('carta-container');
+        cont.classList.remove('esgotada');
+        puxarCarta();
+        return;
+      }
+
+      const escolha = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+      perguntaAtual = bancoPerguntas[escolha];
       jaRespondeu = false;
 
-      document.getElementById('carta-container').classList.remove('verso');
+      // Marca como usada
+      usadas.push(escolha);
+      saveUsadas(usadas);
+      updateBadge();
+
+      const cont = document.getElementById('carta-container');
+      cont.classList.remove('verso');
+      cont.classList.remove('esgotada');
       document.getElementById('titulo-verso').style.display = 'none';
       document.getElementById('frente-carta').style.display = 'block';
       document.getElementById('texto-pergunta').innerText = perguntaAtual.pergunta;
-      
+
+      const badge = document.getElementById('nivel-badge');
+      badge.textContent = `Nível: ${perguntaAtual.nivel}`;
+      badge.className = 'nivel-badge nivel-' + perguntaAtual.nivel.replace('é','e').replace('í','i');
+
       const divBotoes = document.getElementById('botoes-alternativas');
       divBotoes.innerHTML = '';
-
       perguntaAtual.alternativas.forEach((texto, index) => {
         const btn = document.createElement('button');
-        btn.innerText = texto;
+        btn.innerText = `${['A','B','C','D'][index]}) ${texto}`;
         btn.className = 'btn-alternativa';
         btn.onclick = () => verificarResposta(index, btn);
         divBotoes.appendChild(btn);
@@ -177,11 +260,14 @@
       const btnAcao = document.getElementById('btn-acao');
       const todosBotoes = document.querySelectorAll('.btn-alternativa');
 
+      todosBotoes.forEach(b => b.style.cursor = 'default');
+
       if (indiceEscolhido === perguntaAtual.respostaCerta) {
         botaoClicado.classList.add('correta');
         btnAcao.innerText = "🎲 Jogar os Dados";
         btnAcao.style.backgroundColor = "#ffb300";
         btnAcao.style.boxShadow = "0 5px 0 #ff8f00";
+        btnAcao.style.color = "#424242";
         btnAcao.style.display = "block";
         btnAcao.onclick = irParaDados;
       } else {
@@ -196,12 +282,9 @@
       }
     }
 
-    function irParaDados() {
-      window.location.href = "./dados.html";
-    }
+    function irParaDados() { window.location.href = "dados.html"; }
 
     function passarVez() {
-      // Avança o turno para o próximo jogador já que este errou
       let turn = parseInt(localStorage.getItem('turno_atual') || '0') || 0;
       let players = [];
       try {
@@ -211,13 +294,14 @@
           players = Array.isArray(p) ? p : Array.from({ length: p });
         }
       } catch (_) {}
-      if (!players.length) players = [{}, {}];
-
+      if (!players.length) players = [{},{}];
       turn = (turn + 1) % players.length;
       localStorage.setItem('turno_atual', turn);
-      localStorage.setItem('casas_para_andar', '0'); // Não anda nenhuma casa
-      window.location.href = "./mapa.html";
+      localStorage.setItem('casas_para_andar', '0');
+      window.location.href = "mapa.html";
     }
+
+    document.addEventListener('DOMContentLoaded', updateBadge);
   </script>
 </body>
 </html>
