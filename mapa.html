@@ -9,9 +9,9 @@
 
 :root {
   --bg: #1c1c1c;
-  --cl: #7fd44f;   /* cell light green */
-  --cd: #4b9e2a;   /* cell dark green */
-  --cb: #2a6010;   /* cell border */
+  --cl: #748b48;
+  --cd: #4b5c2d;
+  --cb: #2a6010;
   --track: #3d8620;
   --shine: rgba(255,255,255,.2);
   --cell-size: 52px;
@@ -94,7 +94,42 @@ html, body {
 }
 .btn-carta:active { transform: translateY(2px); box-shadow: 0 1px 0 #5a3800; }
 
-/* ── DEBUG PANEL (TEST ONLY – shown when no localStorage) ── */
+/* ── WIN CONDITION BAR ── */
+.win-bar {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  background: #0a1505;
+  border-bottom: 1px solid #2a5010;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #8aca40;
+}
+.win-bar select {
+  background: #1a2e0c;
+  color: #c8f060;
+  border: 1px solid #4a8a20;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 12px;
+}
+.finishers-list {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-left: 4px;
+}
+.finisher-badge {
+  background: #3a7010;
+  border-radius: 8px;
+  padding: 1px 6px;
+  color: #c8f060;
+  font-size: 11px;
+  display: flex; align-items: center; gap: 3px;
+}
+
+/* ── DEBUG PANEL ── */
 .debug-panel {
   width: 100%;
   max-width: 500px;
@@ -133,6 +168,7 @@ html, body {
   width: 100%;
   max-width: 500px;
   margin: 14px auto 0;
+  margin-bottom: 5px;
   display: flex;
   justify-content: center;
 }
@@ -195,6 +231,7 @@ html, body {
 .cell.D { background: var(--cd); }
 .cell.start { background: #b4e860; border-color: #5ca018; }
 .cell.fim   { background: #8acd30; border-color: #3a7008; }
+.cell.finished-cell { background: #f5c542 !important; border-color: #c8880a !important; box-shadow: 0 3px 0 rgba(0,0,0,.5), 0 0 0 4px rgba(245,197,66,.4), inset 0 2px 0 var(--shine); }
 .cell:hover { transform: translate(-50%,-50%) scale(1.12); z-index: 5; }
 
 .cell .num {
@@ -315,8 +352,29 @@ html, body {
 }
 .victory-content p {
   font-size: 18px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #e8f5e9;
+}
+.podium-list {
+  margin: 10px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.podium-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  background: rgba(0,0,0,.25);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.podium-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.5);
 }
 .btn-home {
   background: #f5c542;
@@ -335,6 +393,73 @@ html, body {
   transform: translateY(5px);
   box-shadow: 0 0 0 #c8880a;
 }
+
+/* ── ICON CARD MODAL ── */
+.icon-modal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s;
+}
+.icon-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.icon-card {
+  background: linear-gradient(140deg, #1e3a0e, #2c5c18);
+  border: 3px solid #7ed957;
+  border-radius: 18px;
+  padding: 28px 24px 22px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,.8);
+  transform: scale(.85);
+  transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+}
+.icon-modal.active .icon-card { transform: scale(1); }
+.icon-card .ic-emoji { font-size: 54px; display: block; margin-bottom: 10px; }
+.icon-card .ic-name {
+  color: #c8f060;
+  font-size: 20px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.icon-card .ic-info {
+  color: #dff0a0;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  font-family: 'Segoe UI', sans-serif;
+}
+.icon-card .ic-effect {
+  background: rgba(0,0,0,.35);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #f5c542;
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.btn-ic-ok {
+  background: linear-gradient(150deg,#f5c542,#c8880a);
+  color: #fff;
+  border: 2px solid #7a5000;
+  border-radius: 20px;
+  padding: 10px 28px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #5a3800;
+  width: 100%;
+}
+.btn-ic-ok:active { transform: translateY(2px); }
 </style>
 </head>
 <body>
@@ -364,6 +489,20 @@ html, body {
   <button class="btn-carta" onclick="irCartas()">🃏 Carta</button>
 </div>
 
+<!-- WIN CONDITION BAR -->
+<div class="win-bar" id="win-bar">
+  <span>🏆 Terminar com</span>
+  <select id="win-count-sel" onchange="setWinCount(this.value)">
+    <option value="1">1 jogador</option>
+    <option value="2">2 jogadores</option>
+    <option value="3">3 jogadores</option>
+    <option value="4">4 jogadores</option>
+    <option value="5">5 jogadores</option>
+  </select>
+  <span>para acabar</span>
+  <div class="finishers-list" id="finishers-list"></div>
+</div>
+
 <div class="title-wrap">
   <div class="title">Expedição Botânica</div>
 </div>
@@ -374,31 +513,140 @@ html, body {
 </div>
 <div class="fim-label">🏁 Fim</div>
 
+<!-- VICTORY MODAL -->
 <div id="victory-modal" class="victory-modal">
   <div class="victory-content">
-    <h1>🏆 TEMOS UM CAMPEÃO! 🏆</h1>
+    <h1>🏆 FIM DE JOGO! 🏆</h1>
     <h2 id="winner-name">Nome</h2>
-    <p>Parabéns por concluir a Expedição Botânica!</p>
+    <p id="winner-sub">Parabéns por concluir a Expedição Botânica!</p>
+    <div class="podium-list" id="podium-list"></div>
     <button class="btn-home" onclick="voltarAoInicio()">Voltar ao Menu Inicial</button>
+  </div>
+</div>
+
+<!-- ICON CARD MODAL -->
+<div id="icon-modal" class="icon-modal">
+  <div class="icon-card">
+    <span class="ic-emoji" id="ic-emoji">🌱</span>
+    <div class="ic-name" id="ic-name">Planta</div>
+    <div class="ic-info" id="ic-info">Informação botânica aqui.</div>
+    <div class="ic-effect" id="ic-effect">⬆️ Avance X casas</div>
+    <button class="btn-ic-ok" onclick="closeIconCard()">OK, entendido!</button>
   </div>
 </div>
 
 <script>
 /* ══════════════════════════════════════════════════════
-   CONFIGURAÇÕES (AJUSTADO PARA 36 CASAS)
+   CONFIGURAÇÕES
 ══════════════════════════════════════════════════════ */
-const TOTAL = 36; // <-- Alterado de 48 para 36
-const P_COLORS = ['#2c80e8','#e63030','#f5c430','#44bb66','#c060f0'];
-const P_NAMES  = ['Azul','Vermelho','Amarelo','Verde','Roxo'];
+const TOTAL = 36;
+const P_COLORS = ['#2c80e8','#e83030','#f5c430','#fff','#c060f0'];
+const P_NAMES  = ['Azul','Vermelho','Amarelo','Branco','Roxo'];
 
-// Lista de 36 Ícones (a última casa é a bandeirada)
 const ICONS = [
-  '🌿','🍎','🌸','❓','','🌸','❓','🍎',
-  '❓','🌸','🍎','❓','🌸','','❓','🍎',
-  '🌸','❓','🍎','🌸','❓','','🌸','❓',
-  '🍎','❓','🌸','🍎','','❓','🌸','🍎',
-  '❓','🌸','','🏁'
+  '','','','','','🌸','','🌱','','❓',
+  '','🍇','🍎','','','','','🌸','🐞','🍎',
+  '','❓','','','🍎','🌵','','','','🌸',
+  '🌼','🍎','','','','🏁'
 ];
+
+// ── DADOS DOS ÍCONES ESPECIAIS ──
+// effect: { type: 'move'|'skip', value: number }
+//   move: positivo = avançar, negativo = voltar
+//   skip: pula rodada
+const ICON_CARDS = {
+  '🌱': [
+    {
+      name: 'Cotilédone',
+      info: 'O cotilédone é, após a germinação, o início da jornada da planta — a primeira folha que alimenta o embrião enquanto as raízes ainda não conseguem absorver nutrientes do solo.',
+      effectText: '🌿 Avance 4 casas!',
+      effect: { type: 'move', value: 4 }
+    }
+  ],
+  '🌵': [
+    {
+      name: 'Cacto Espinhoso',
+      info: 'As folhas do cacto se transformaram em espinhos para evitar a perda de água por transpiração em ambientes muito secos — mas cuidado, eles são afiados!',
+      effectText: '⏸️ Não jogue na próxima rodada!',
+      effect: { type: 'skip', value: 1 }
+    }
+  ],
+  '🌼': [
+    {
+      name: 'Margarida',
+      info: 'A margarida pertence à família Asteraceae — uma das maiores famílias botânicas. Suas "pétalas" são, na verdade, flores individuais chamadas flores-liguladas!',
+      effectText: '⬇️ Volte 3 casas!',
+      effect: { type: 'move', value: -3 }
+    }
+  ],
+  '🍎': [
+    {
+      name: 'Fruto Verdadeiro',
+      info: 'O fruto é o ovário maduro da flor, que protege e nutre as sementes. Só as angiospermas (plantas com flores) produzem frutos verdadeiros!',
+      effectText: '⬆️ Avance 3 casas!',
+      effect: { type: 'move', value: 3 }
+    },
+    {
+      name: 'Dispersão de Sementes',
+      info: 'Frutas carnosas atraem animais que comem o fruto e dispersam as sementes longe — um exemplo incrível de coevolução entre plantas e animais!',
+      effectText: '⬆️ Avance 3 casas!',
+      effect: { type: 'move', value: 3 }
+    }
+  ],
+  '🌸': [
+    {
+      name: 'Flor de Cerejeira',
+      info: 'As flores de cerejeira (sakura) duram apenas cerca de 2 semanas por ano no Japão. Elas representam a beleza efêmera da natureza na cultura japonesa.',
+      effectText: '✨ Mantenha sua posição — que bela flor!',
+      effect: { type: 'move', value: 0 }
+    },
+    {
+      name: 'Polinização Cruzada',
+      info: 'As flores evoluíram cores e perfumes para atrair polinizadores como abelhas, borboletas e beija-flores, garantindo a fecundação cruzada entre plantas diferentes.',
+      effectText: '✨ Mantenha sua posição — natureza linda!',
+      effect: { type: 'move', value: 0 }
+    },
+    {
+      name: 'Pétalas Florais',
+      info: 'As pétalas são folhas modificadas (metamorfoseadas) que evoluíram para atrair polinizadores. A cor vem de pigmentos como antocianinas, carotenoides e flavonoides.',
+      effectText: '✨ Mantenha sua posição — florescer é belo!',
+      effect: { type: 'move', value: 0 }
+    }
+  ],
+  '🐞': [
+    {
+      name: 'Joaninha Protetora',
+      info: 'A joaninha é uma aliada das plantas! Ela se alimenta de pulgões (afídeos), que sugam a seiva e prejudicam as plantas. Uma única joaninha come até 5.000 pulgões na vida!',
+      effectText: '⬆️ Avance 4 casas — a joaninha te protegeu!',
+      effect: { type: 'move', value: 4 }
+    }
+  ],
+  '🍇': [
+    {
+      name: 'Uva — Fruto em Cacho',
+      info: 'A uva é classificada botanicamente como uma baga verdadeira. O cacho de uvas é tecnicamente chamado de "cacho racemoso" — cada baginha desenvolvida de um único carpelo.',
+      effectText: '✨ Mantenha sua posição — deliciosa parada!',
+      effect: { type: 'move', value: 0 }
+    }
+  ],
+  '❓': [
+    {
+      name: 'Mistério Botânico!',
+      info: 'A Botânica estuda mais de 400.000 espécies de plantas conhecidas — e ainda há muitas por descobrir! A cada ano surgem centenas de novas espécies descritas pela ciência.',
+      effectText: '🎲 Sorte ou azar? Avance 2 casas!',
+      effect: { type: 'move', value: 2 }
+    },
+    {
+      name: 'Planta Desconhecida!',
+      info: 'Estima-se que 15% das plantas da Amazônia ainda não foram classificadas pela ciência. A floresta guarda segredos que podem salvar vidas através de novos medicamentos!',
+      effectText: '🎲 Mistério resolvido! Volte 2 casas!',
+      effect: { type: 'move', value: -2 }
+    }
+  ]
+};
+
+// Controla qual variante de cada ícone será usada (por ícone, cycling)
+const iconVariantIdx = {};
 
 /* ══════════════════════════════════════════════════════
    GERAÇÃO DO MAPA
@@ -407,12 +655,10 @@ function buildSnakePoints(W, cellR) {
   const COLS = 6;
   const ROWS = Math.ceil(TOTAL / COLS);
   const padH = cellR * 1.4;
-  const padV = cellR * 1.5;  
+  const padV = cellR * 1.5;
   const stepX = (W - padH * 2) / (COLS - 1);
-  const stepY = cellR * 3.0; 
-  
+  const stepY = cellR * 3.0;
   const pts = [];
-  
   for (let r = 0; r < ROWS; r++) {
     const rev = (r % 2 === 1);
     for (let c = 0; c < COLS; c++) {
@@ -423,7 +669,6 @@ function buildSnakePoints(W, cellR) {
       pts[idx] = { x, y };
     }
   }
-  
   const totalH = padV + (ROWS - 1) * stepY + cellR * 2;
   return { pts, totalH };
 }
@@ -456,53 +701,38 @@ function buildBoard() {
   layer.innerHTML = '';
 
   const W = outer.clientWidth || 380;
-  const cellR = Math.min(26, W * 0.068); 
+  const cellR = Math.min(26, W * 0.068);
   const cellSize = cellR * 2;
-  
   document.documentElement.style.setProperty('--cell-size', cellSize + 'px');
 
   const { pts, totalH } = buildSnakePoints(W, cellR);
   boardPoints = pts;
-  
   layer.style.height = totalH + 'px';
   outer.style.minHeight = totalH + 'px';
 
   const pathD = catmullRomPath(pts);
-  
-  const shadow = document.createElementNS('http://www.w3.org/2000/svg','path');
-  shadow.setAttribute('d', pathD);
-  shadow.setAttribute('fill', 'none');
-  shadow.setAttribute('stroke', 'rgba(0,0,0,.4)');
-  shadow.setAttribute('stroke-width', cellSize * 1.35 + 4);
-  shadow.setAttribute('stroke-linecap', 'round');
-  shadow.setAttribute('stroke-linejoin', 'round');
-  svg.appendChild(shadow);
-  
-  const border = document.createElementNS('http://www.w3.org/2000/svg','path');
-  border.setAttribute('d', pathD);
-  border.setAttribute('fill', 'none');
-  border.setAttribute('stroke', '#2a6010');
-  border.setAttribute('stroke-width', cellSize * 1.3 + 2);
-  border.setAttribute('stroke-linecap', 'round');
-  border.setAttribute('stroke-linejoin', 'round');
-  svg.appendChild(border);
-  
-  const track = document.createElementNS('http://www.w3.org/2000/svg','path');
-  track.setAttribute('d', pathD);
-  track.setAttribute('fill', 'none');
-  track.setAttribute('stroke', '#3d8620');
-  track.setAttribute('stroke-width', cellSize * 1.2);
-  track.setAttribute('stroke-linecap', 'round');
-  track.setAttribute('stroke-linejoin', 'round');
-  svg.appendChild(track);
-  
+
+  [
+    ['rgba(0,0,0,.4)', cellSize*1.35+4, 'round'],
+    ['#2a6010', cellSize*1.3+2, 'round'],
+    ['#3d8620', cellSize*1.2, 'round'],
+  ].forEach(([stroke, width]) => {
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', pathD);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke', stroke);
+    p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap','round');
+    p.setAttribute('stroke-linejoin','round');
+    svg.appendChild(p);
+  });
   const shine = document.createElementNS('http://www.w3.org/2000/svg','path');
   shine.setAttribute('d', pathD);
-  shine.setAttribute('fill', 'none');
-  shine.setAttribute('stroke', 'rgba(255,255,255,.12)');
-  shine.setAttribute('stroke-width', cellSize * 0.4);
-  shine.setAttribute('stroke-linecap', 'round');
-  shine.setAttribute('stroke-dasharray', `${cellSize * 0.6} ${cellSize * 0.9}`);
+  shine.setAttribute('fill','none');
+  shine.setAttribute('stroke','rgba(255,255,255,.12)');
+  shine.setAttribute('stroke-width', cellSize*0.4);
+  shine.setAttribute('stroke-linecap','round');
+  shine.setAttribute('stroke-dasharray', `${cellSize*0.6} ${cellSize*0.9}`);
   svg.appendChild(shine);
 
   pts.forEach((pt, idx) => {
@@ -515,7 +745,6 @@ function buildBoard() {
     div.style.width  = cellSize + 'px';
     div.style.height = cellSize + 'px';
     div.style.fontSize = Math.max(12, cellSize * 0.5) + 'px';
-
     if (idx === 0)         div.classList.add('start');
     if (idx === TOTAL - 1) div.classList.add('fim');
 
@@ -538,7 +767,6 @@ function buildBoard() {
 
   addMapLabel(outer, pts[0].x + cellR + 4, pts[0].y - cellR - 6, 'Início ↗');
 
-  // Ajustadas para o novo tamanho de 36 casas
   const decos = [
     { pct_x: 0.02, pct_y: 0.04,  e: '🌋', f: 38 },
     { pct_x: 0.01, pct_y: 0.12,  e: '🌲', f: 22 },
@@ -548,7 +776,6 @@ function buildBoard() {
     { pct_x: 0.01, pct_y: 0.70,  e: '🌱', f: 20 },
     { pct_x: 0.01, pct_y: 0.85,  e: '🌿', f: 18 },
     { pct_x: 0.01, pct_y: 0.95,  e: '🏔️', f: 26 },
-
     { pct_x: 0.90, pct_y: 0.07,  e: '🌲', f: 22 },
     { pct_x: 0.92, pct_y: 0.20,  e: '🌿', f: 18 },
     { pct_x: 0.89, pct_y: 0.35,  e: '🌳', f: 22 },
@@ -556,7 +783,6 @@ function buildBoard() {
     { pct_x: 0.90, pct_y: 0.65,  e: '🌲', f: 22 },
     { pct_x: 0.92, pct_y: 0.80,  e: '🌿', f: 18 },
     { pct_x: 0.90, pct_y: 0.95,  e: '🌳', f: 22 },
-
     { pct_x: 0.35, pct_y: 0.28,  e: '🌲', f: 20 },
     { pct_x: 0.45, pct_y: 0.32,  e: '🌲', f: 16 },
     { pct_x: 0.30, pct_y: 0.50,  e: '🍇', f: 18 },
@@ -565,7 +791,6 @@ function buildBoard() {
     { pct_x: 0.60, pct_y: 0.80,  e: '🍇', f: 18 },
     { pct_x: 0.25, pct_y: 0.88,  e: '🌸', f: 16 },
   ];
-
   decos.forEach(d => {
     const el = document.createElement('div');
     el.className = 'deco';
@@ -592,6 +817,9 @@ function addMapLabel(parent, x, y, text) {
 let players   = [];
 let positions = [];
 let turn      = 0;
+let finishers = []; // array de índices de jogadores que chegaram
+let winCount  = 1;  // quantos precisam chegar para acabar
+let skips     = []; // array de quantas rodadas cada jogador pula
 
 function load() {
   try {
@@ -620,7 +848,27 @@ function load() {
 
   try { turn = parseInt(localStorage.getItem('turno_atual') || '0') || 0; } catch (_) {}
   turn = ((turn % players.length) + players.length) % players.length;
-  
+
+  try {
+    const raw = localStorage.getItem('expedicao_finishers');
+    if (raw) finishers = JSON.parse(raw);
+  } catch (_) {}
+
+  try {
+    const raw = localStorage.getItem('expedicao_skips');
+    if (raw) skips = JSON.parse(raw);
+  } catch (_) {}
+  while (skips.length < players.length) skips.push(0);
+
+  // Win condition
+  try {
+    const wc = parseInt(localStorage.getItem('expedicao_wincount') || '1');
+    winCount = Math.min(Math.max(wc, 1), players.length);
+  } catch (_) {}
+
+  // Update win-count selector max
+  updateWinCountSelect();
+
   const sel = document.getElementById('dbg-nplayers');
   if (sel) sel.value = String(players.length);
 }
@@ -629,6 +877,30 @@ function save() {
   localStorage.setItem('posicoes_jogadores', JSON.stringify(positions));
   localStorage.setItem('turno_atual', String(turn));
   localStorage.setItem('casas_para_andar', '0');
+  localStorage.setItem('expedicao_finishers', JSON.stringify(finishers));
+  localStorage.setItem('expedicao_skips', JSON.stringify(skips));
+  localStorage.setItem('expedicao_wincount', String(winCount));
+}
+
+/* ══════════════════════════════════════════════════════
+   WIN COUNT
+══════════════════════════════════════════════════════ */
+function updateWinCountSelect() {
+  const sel = document.getElementById('win-count-sel');
+  sel.innerHTML = '';
+  for (let i = 1; i <= players.length; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i === 1 ? '1 jogador' : `${i} jogadores`;
+    sel.appendChild(opt);
+  }
+  sel.value = String(winCount);
+}
+
+function setWinCount(v) {
+  winCount = parseInt(v) || 1;
+  localStorage.setItem('expedicao_wincount', String(winCount));
+  renderWinBar();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -636,10 +908,13 @@ function save() {
 ══════════════════════════════════════════════════════ */
 function renderPawns() {
   document.querySelectorAll('.pawns').forEach(p => (p.innerHTML = ''));
+  // Mark finished cells
+  Object.values(cellEls).forEach(c => c.classList.remove('finished-cell'));
   players.forEach((pl, i) => {
     const pos  = positions[i] ?? 0;
     const cell = cellEls[pos];
     if (!cell) return;
+    if (finishers.includes(i) && pos >= TOTAL - 1) cell.classList.add('finished-cell');
     const pw = document.createElement('div');
     pw.className = 'pawn';
     pw.style.background = pl.cor;
@@ -651,16 +926,69 @@ function renderPawns() {
 function renderPanel() {
   const pl = players[turn] || players[0];
   document.getElementById('turn-dot').style.background = pl.cor;
-  document.getElementById('turn-lbl').textContent = `Vez de ${pl.nome}`;
+  const skipCount = skips[turn] || 0;
+  document.getElementById('turn-lbl').textContent = skipCount > 0
+    ? `${pl.nome} pula rodada! (${skipCount}x)`
+    : `Vez de ${pl.nome}`;
 
   const list = document.getElementById('pl-list');
   list.innerHTML = '';
   players.forEach((p, i) => {
     const chip = document.createElement('div');
     chip.className = 'pl-chip';
-    chip.innerHTML = `<span class="pl-dot" style="background:${p.cor}"></span>${p.nome}: #${(positions[i] ?? 0) + 1}`;
+    const finished = finishers.includes(i);
+    chip.innerHTML = `<span class="pl-dot" style="background:${p.cor}"></span>${p.nome}: #${(positions[i] ?? 0) + 1}${finished ? ' 🏁' : ''}`;
     list.appendChild(chip);
   });
+}
+
+function renderWinBar() {
+  document.getElementById('win-count-sel').value = String(winCount);
+  const fl = document.getElementById('finishers-list');
+  fl.innerHTML = '';
+  finishers.forEach(fi => {
+    const badge = document.createElement('div');
+    badge.className = 'finisher-badge';
+    badge.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${players[fi].cor};border:1.5px solid rgba(255,255,255,.5)"></span>${players[fi].nome}`;
+    fl.appendChild(badge);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   ICON CARD MODAL
+══════════════════════════════════════════════════════ */
+let iconCardResolve = null;
+let pendingIconEffect = null;
+
+function showIconCard(icon) {
+  return new Promise(resolve => {
+    const cards = ICON_CARDS[icon];
+    if (!cards || !cards.length) { resolve(null); return; }
+
+    // Cycle through variants
+    if (iconVariantIdx[icon] === undefined) iconVariantIdx[icon] = 0;
+    const card = cards[iconVariantIdx[icon] % cards.length];
+    iconVariantIdx[icon] = (iconVariantIdx[icon] + 1) % cards.length;
+
+    document.getElementById('ic-emoji').textContent = icon;
+    document.getElementById('ic-name').textContent = card.name;
+    document.getElementById('ic-info').textContent = card.info;
+    document.getElementById('ic-effect').textContent = card.effectText;
+
+    pendingIconEffect = card.effect;
+    iconCardResolve = resolve;
+    document.getElementById('icon-modal').classList.add('active');
+  });
+}
+
+function closeIconCard() {
+  document.getElementById('icon-modal').classList.remove('active');
+  const effect = pendingIconEffect;
+  pendingIconEffect = null;
+  if (iconCardResolve) {
+    iconCardResolve(effect);
+    iconCardResolve = null;
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -668,10 +996,11 @@ function renderPanel() {
 ══════════════════════════════════════════════════════ */
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
+const SPECIAL_ICONS = new Set(Object.keys(ICON_CARDS));
+
 async function movePawn(pi, steps) {
   const from = positions[pi] ?? 0;
   const to   = Math.min(from + steps, TOTAL - 1);
-  
   for (let p = from + 1; p <= to; p++) {
     positions[pi] = p;
     renderPawns();
@@ -683,7 +1012,6 @@ async function movePawn(pi, steps) {
     }
     await delay(220);
   }
-
   const finalCell = cellEls[to];
   if (finalCell) {
     const pw = finalCell.querySelector(`.pawn[data-pi="${pi}"]`);
@@ -696,6 +1024,8 @@ async function movePawn(pi, steps) {
 }
 
 let busy = false;
+let iconCardOpen = false;
+
 async function checkMove() {
   if (busy) return;
   busy = true;
@@ -705,46 +1035,117 @@ async function checkMove() {
       try { turn = parseInt(localStorage.getItem('turno_atual') || '0') || 0; } catch (_) {}
       turn = ((turn % players.length) + players.length) % players.length;
 
-      await movePawn(turn, steps);
-
-      const pos = positions[turn];
-      
-      // CHEGOU AO FINAL (CASA 36)
-      if (pos >= TOTAL - 1) {
+      // Check if player needs to skip
+      if ((skips[turn] || 0) > 0) {
+        skips[turn]--;
+        localStorage.setItem('casas_para_andar', '0');
+        turn = (turn + 1) % players.length;
+        save();
         renderPanel();
         renderPawns();
-        await delay(400);
-        
-        // Exibe o modal de vitória
-        const modal = document.getElementById('victory-modal');
-        const winnerName = document.getElementById('winner-name');
-        winnerName.textContent = players[turn].nome;
-        winnerName.style.color = players[turn].cor;
-        modal.classList.add('active');
-        
-        save();
+        renderWinBar();
         busy = false;
         return;
       }
 
+      // Skip finishers
+      if (finishers.includes(turn)) {
+        localStorage.setItem('casas_para_andar', '0');
+        turn = (turn + 1) % players.length;
+        save();
+        renderPanel();
+        renderPawns();
+        renderWinBar();
+        busy = false;
+        return;
+      }
+
+      const landedPos = await movePawn(turn, steps);
+      const landedIcon = ICONS[landedPos];
+
+      // Check for special icon BEFORE checking if it's the finish
+      if (SPECIAL_ICONS.has(landedIcon) && landedPos < TOTAL - 1) {
+        // Show icon card
+        const effect = await showIconCard(landedIcon);
+        if (effect) {
+          if (effect.type === 'move' && effect.value !== 0) {
+            const newPos = await movePawn(turn, effect.value);
+            positions[turn] = newPos;
+            renderPawns();
+            await delay(300);
+          } else if (effect.type === 'skip') {
+            skips[turn] = (skips[turn] || 0) + effect.value;
+          }
+        }
+      }
+
+      const pos = positions[turn];
+
+      // CHEGOU AO FINAL
+      if (pos >= TOTAL - 1 && !finishers.includes(turn)) {
+        finishers.push(turn);
+        renderPanel();
+        renderPawns();
+        renderWinBar();
+        await delay(400);
+
+        if (finishers.length >= winCount) {
+          // Fim de jogo!
+          const modal = document.getElementById('victory-modal');
+          const winnerName = document.getElementById('winner-name');
+          const winnerSub  = document.getElementById('winner-sub');
+          const podiumList = document.getElementById('podium-list');
+
+          if (finishers.length === 1) {
+            winnerName.textContent = players[finishers[0]].nome;
+            winnerName.style.color = players[finishers[0]].cor;
+            winnerSub.textContent = 'Parabéns por concluir a Expedição Botânica!';
+          } else {
+            winnerName.textContent = '🏆 CAMPEÕES!';
+            winnerName.style.color = '#f5c542';
+            winnerSub.textContent = `${finishers.length} exploradores chegaram ao fim!`;
+          }
+
+          podiumList.innerHTML = '';
+          const medals = ['🥇','🥈','🥉'];
+          finishers.forEach((fi, rank) => {
+            const item = document.createElement('div');
+            item.className = 'podium-item';
+            item.innerHTML = `<span>${medals[rank] || `#${rank+1}`}</span><span class="podium-dot" style="background:${players[fi].cor}"></span><span>${players[fi].nome}</span>`;
+            podiumList.appendChild(item);
+          });
+
+          modal.classList.add('active');
+          save();
+          busy = false;
+          return;
+        }
+      }
+
       turn = (turn + 1) % players.length;
+      // Skip finishers on next turn selection
+      let attempts = 0;
+      while (finishers.includes(turn) && attempts < players.length) {
+        turn = (turn + 1) % players.length;
+        attempts++;
+      }
       save();
       renderPanel();
       renderPawns();
+      renderWinBar();
     }
   } catch (e) { console.warn(e); }
   busy = false;
 }
 
-// Botão da Tela de Vitória que reseta o jogo e volta pro Menu Inicial
 function voltarAoInicio() {
   localStorage.removeItem('posicoes_jogadores');
   localStorage.removeItem('turno_atual');
   localStorage.removeItem('casas_para_andar');
-  // Ajuste aqui se o nome do arquivo inicial for diferente
-  window.location.href = './index.html'; 
+  localStorage.removeItem('expedicao_finishers');
+  localStorage.removeItem('expedicao_skips');
+  window.location.href = 'index.html';
 }
-
 
 /* ══════════════════════════════════════════════════════
    DEBUG HELPERS
@@ -759,14 +1160,22 @@ function dbgReset() {
   const n = parseInt(document.getElementById('dbg-nplayers').value) || 2;
   players = Array.from({ length: n }, (_, i) => ({ nome: P_NAMES[i], cor: P_COLORS[i] }));
   positions = Array(n).fill(0);
+  skips = Array(n).fill(0);
+  finishers = [];
   turn = 0;
   localStorage.setItem('expedicao_jogadores', JSON.stringify(players));
+  localStorage.removeItem('expedicao_finishers');
+  localStorage.removeItem('expedicao_skips');
+  // Reset perguntas usadas
+  localStorage.removeItem('expedicao_perguntas_usadas');
+  updateWinCountSelect();
   save();
   renderPawns();
   renderPanel();
+  renderWinBar();
 }
 
-function irCartas() { window.location.href = './cartas.html'; }
+function irCartas() { window.location.href = 'cartas.html'; }
 
 /* ══════════════════════════════════════════════════════
    LISTENERS DE SISTEMA
@@ -777,6 +1186,7 @@ window.addEventListener('storage', e => {
     load();
     renderPanel();
     renderPawns();
+    renderWinBar();
     if (e.key === 'casas_para_andar') checkMove();
   }
 });
@@ -804,6 +1214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildBoard();
   renderPawns();
   renderPanel();
+  renderWinBar();
   checkMove();
 });
 </script>
