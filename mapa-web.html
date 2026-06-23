@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expedição Botânica — Versão Web</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap');
+
+:root {
+  --bg:    #141a0c;
+  --panel: #0e1a06;
+  --cl:    #748b48;
+  --cd:    #4b5c2d;
+  --cb:    #2a6010;
+  --shine: rgba(255,255,255,.18);
+  --green-light: #c8f060;
+  --green-mid:   #7ed957;
+  --gold:        #f5c542;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  font-family: 'Fredoka One', cursive;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ══ LAYOUT ══ */
+#app {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ══ LEFT PANEL ══ */
+#sidebar {
+  background: var(--panel);
+  border-right: 2px solid #2a5010;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-title {
+  background: linear-gradient(135deg,#1e3a0a,#2c5418);
+  border-bottom: 2px solid #3a7010;
+  padding: 16px 18px 12px;
+  text-align: center;
+}
+.sidebar-title h1 {
+  color: #dff0a0;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 rgba(0,0,0,.5);
+}
+.sidebar-title .subtitle {
+  color: #7ed957;
+  font-size: 11px;
+  font-family: 'Nunito', sans-serif;
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+/* ── Turn indicator ── */
+.turn-block {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #1e3a0a;
+}
+.turn-heading {
+  color: #8aca40;
+  font-size: 11px;
+  font-family: 'Nunito', sans-serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.turn-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(126,217,87,.08);
+  border: 1px solid rgba(126,217,87,.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.turn-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,.35);
+  box-shadow: 0 2px 8px rgba(0,0,0,.6);
+  flex-shrink: 0;
+}
+.turn-name {
+  color: var(--green-light);
+  font-size: 20px;
+  flex: 1;
+}
+.skip-badge {
+  background: #e53935;
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* ── Players list ── */
+.players-block {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1e3a0a;
+  flex: 1;
+  overflow-y: auto;
+}
+.players-heading {
+  color: #8aca40;
+  font-size: 11px;
+  font-family: 'Nunito', sans-serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  background: rgba(255,255,255,.04);
+  transition: background .2s;
+}
+.player-row.active-turn {
+  background: rgba(200,240,96,.1);
+  border: 1px solid rgba(200,240,96,.25);
+}
+.player-row.finished { opacity: .7; }
+.pl-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.3);
+  flex-shrink: 0;
+}
+.pl-name {
+  color: #ddd;
+  font-size: 15px;
+  flex: 1;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+}
+.pl-pos {
+  color: #8aca40;
+  font-size: 13px;
+  font-family: 'Nunito', sans-serif;
+}
+.pl-fin { color: #f5c542; font-size: 14px; }
+
+/* ── Win condition ── */
+.win-block {
+  padding: 10px 16px;
+  border-bottom: 1px solid #1e3a0a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.win-label {
+  color: #8aca40;
+  font-size: 12px;
+  font-family: 'Nunito', sans-serif;
+  white-space: nowrap;
+}
+.win-block select {
+  background: #1a2e0c;
+  color: var(--green-light);
+  border: 1px solid #3a7010;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px;
+  cursor: pointer;
+}
+.finisher-badges {
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+.fin-badge {
+  background: #2a5010;
+  border: 1px solid #7ed957;
+  border-radius: 8px;
+  padding: 2px 8px;
+  color: var(--green-light);
+  font-size: 11px;
+  font-family: 'Nunito', sans-serif;
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* ── Action buttons ── */
+.actions-block {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-main {
+  background: linear-gradient(150deg,#f5c542,#c8880a);
+  color: #fff;
+  border: 2px solid #7a5000;
+  border-radius: 14px;
+  padding: 13px 10px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #5a3800;
+  text-align: center;
+  transition: transform .1s, box-shadow .1s;
+  width: 100%;
+}
+.btn-main:active { transform: translateY(3px); box-shadow: 0 1px 0 #5a3800; }
+.btn-secondary {
+  background: rgba(255,255,255,.07);
+  color: #aaa;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  padding: 9px 10px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+  transition: background .15s;
+  width: 100%;
+}
+.btn-secondary:hover { background: rgba(255,255,255,.12); }
+
+/* ── Legend inside sidebar ── */
+.legend-block {
+  padding: 0 16px 14px;
+  overflow-y: auto;
+  max-height: 220px;
+}
+.legend-toggle {
+  color: #5a8a20;
+  font-size: 12px;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend-toggle:hover { color: #7ed957; }
+.legend-items { display: none; }
+.legend-items.open { display: block; }
+.legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.legend-item:last-child { border: none; }
+.legend-ico { font-size: 20px; flex-shrink: 0; min-width: 26px; text-align: center; }
+.legend-txt { flex: 1; }
+.legend-nm  { color: #dff0a0; font-size: 12px; }
+.legend-dc  { color: #777; font-size: 11px; font-family: 'Nunito', sans-serif; line-height: 1.3; }
+
+/* ══ BOARD AREA ══ */
+#board-area {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, #1e3510 0%, #0e1a06 70%);
+}
+
+#board-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 30px 30px;
+  display: flex;
+  justify-content: center;
+}
+
+#board-outer {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+}
+
+#track-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+}
+#cells-layer {
+  position: relative;
+  width: 100%;
+}
+
+.cell {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--cb);
+  box-shadow: 0 4px 0 rgba(0,0,0,.55), inset 0 2px 0 var(--shine);
+  cursor: default;
+  transition: transform .15s;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  user-select: none;
+}
+.cell.L { background: var(--cl); }
+.cell.D { background: var(--cd); }
+.cell.start { background: #b4e860; border-color: #5ca018; }
+.cell.fim   { background: #8acd30; border-color: #3a7008; }
+.cell.finished-cell { background: #f5c542 !important; border-color: #c8880a !important; box-shadow: 0 4px 0 rgba(0,0,0,.5), 0 0 0 5px rgba(245,197,66,.35), inset 0 2px 0 var(--shine); }
+.cell:hover { transform: translate(-50%,-50%) scale(1.1); z-index: 5; }
+
+.cell .num {
+  position: absolute;
+  bottom: -1px; right: -1px;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  font-size: 10px;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.cell .pawns {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+.pawn {
+  width: 28%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.55);
+  box-shadow: 0 2px 6px rgba(0,0,0,.8);
+}
+.map-lbl {
+  position: absolute;
+  font-style: italic;
+  color: #a0e020;
+  font-size: 18px;
+  text-shadow: 1px 1px 4px rgba(0,0,0,.9);
+  pointer-events: none;
+  z-index: 10;
+}
+.deco {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  z-index: 1;
+}
+
+@keyframes hop {
+  0%,100% { box-shadow: 0 4px 0 rgba(0,0,0,.55), inset 0 2px 0 var(--shine); }
+  50%      { box-shadow: 0 4px 0 rgba(0,0,0,.55), 0 0 0 10px rgba(255,230,0,.3), inset 0 2px 0 var(--shine); }
+}
+.cell.active { animation: hop .5s ease; }
+
+@keyframes pawn-bounce {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.3) translateY(-3px); }
+}
+.pawn.moving { animation: pawn-bounce .25s 3 ease-in-out; }
+
+.fim-label {
+  text-align: center;
+  color: #a0e020;
+  font-size: 22px;
+  font-style: italic;
+  text-shadow: 1px 1px 4px rgba(0,0,0,.9);
+  padding: 14px 0 24px;
+}
+
+/* ══ MODALS ══ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.overlay.active { opacity: 1; pointer-events: auto; }
+
+/* Victory */
+.victory-box {
+  background: linear-gradient(135deg,#4b9e2a,#2a6010);
+  padding: 44px 36px;
+  border-radius: 24px;
+  border: 4px solid #c8f060;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.8), inset 0 0 30px rgba(255,255,255,.1);
+  max-width: 460px;
+  width: 90%;
+  color: #fff;
+  transform: scale(.85);
+  transition: transform .4s cubic-bezier(.175,.885,.32,1.275);
+}
+.overlay.active .victory-box { transform: scale(1); }
+.victory-box h1 { color: var(--gold); font-size: 28px; text-shadow: 2px 2px 0 #5a3800; margin-bottom: 8px; }
+.victory-box h2 { font-size: 36px; margin: 12px 0; text-shadow: 2px 2px 5px rgba(0,0,0,.7); }
+.victory-box p  { font-size: 17px; color: #e8f5e9; margin-bottom: 16px; font-family:'Nunito',sans-serif; }
+.podium-list { margin: 8px 0 20px; display: flex; flex-direction: column; gap: 6px; }
+.podium-item { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; background: rgba(0,0,0,.25); border-radius: 10px; padding: 7px 12px; font-family:'Nunito',sans-serif; }
+.podium-dot  { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); }
+.btn-home { background: var(--gold); color: #5a3800; border: 3px solid #fff; border-radius: 30px; padding: 13px 28px; font-size: 18px; font-family:'Fredoka One',cursive; cursor: pointer; box-shadow: 0 5px 0 #c8880a; width: 100%; transition: all .2s; }
+.btn-home:active { transform: translateY(5px); box-shadow: 0 0 0 #c8880a; }
+
+/* Icon card */
+.icon-box {
+  background: linear-gradient(140deg,#1e3a0e,#2c5c18);
+  border: 3px solid #7ed957;
+  border-radius: 20px;
+  padding: 32px 28px 24px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 16px 50px rgba(0,0,0,.8);
+  transform: scale(.85);
+  transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+}
+.overlay.active .icon-box { transform: scale(1); }
+.ic-emoji { font-size: 64px; display: block; margin-bottom: 10px; }
+.ic-name  { color: #c8f060; font-size: 22px; margin-bottom: 10px; letter-spacing: 1px; }
+.ic-info  { color: #dff0a0; font-size: 15px; line-height: 1.55; margin-bottom: 14px; font-family:'Nunito',sans-serif; }
+.ic-effect { background: rgba(0,0,0,.35); border-radius: 12px; padding: 10px 16px; color: var(--gold); font-size: 17px; margin-bottom: 20px; }
+.btn-ic-ok { background: linear-gradient(150deg,#f5c542,#c8880a); color: #fff; border: 2px solid #7a5000; border-radius: 20px; padding: 12px 30px; font-family:'Fredoka One',cursive; font-size: 17px; cursor: pointer; box-shadow: 0 3px 0 #5a3800; width: 100%; }
+.btn-ic-ok:active { transform: translateY(2px); }
+
+/* Debug overlay */
+#debug-bar {
+  background: #080f04;
+  border-top: 1px solid #1e3a0a;
+  padding: 6px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+#debug-bar label { color: #5a8a20; font-size: 11px; font-family:'Nunito',sans-serif; }
+#debug-bar select, #debug-bar input {
+  background: #0e1a06; color: #c8f060; border: 1px solid #2a5010;
+  border-radius: 6px; padding: 3px 6px; font-family:'Fredoka One',cursive; font-size: 11px;
+}
+#debug-bar button { background: #2a5010; color: #c8f060; border: none; border-radius: 6px; padding: 4px 10px; font-family:'Fredoka One',cursive; font-size: 11px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside id="sidebar">
+    <div class="sidebar-title">
+      <h1>🌿 Expedição Botânica</h1>
+      <div class="subtitle">VERSÃO WEB</div>
+    </div>
+
+    <!-- Turno atual -->
+    <div class="turn-block">
+      <div class="turn-heading">VEZ DE JOGAR</div>
+      <div class="turn-player">
+        <div class="turn-dot" id="turn-dot"></div>
+        <div class="turn-name" id="turn-lbl">—</div>
+        <div class="skip-badge" id="skip-badge" style="display:none">⏸ pula</div>
+      </div>
+    </div>
+
+    <!-- Jogadores -->
+    <div class="players-block">
+      <div class="players-heading">JOGADORES</div>
+      <div id="pl-list"></div>
+    </div>
+
+    <!-- Condição de vitória -->
+    <div class="win-block">
+      <span class="win-label">🏆 Terminar com</span>
+      <select id="win-count-sel" onchange="setWinCount(this.value)"></select>
+      <span class="win-label">para acabar</span>
+      <div class="finisher-badges" id="finisher-badges"></div>
+    </div>
+
+    <!-- Botões de ação -->
+    <div class="actions-block">
+      <button class="btn-main" onclick="irCartas()">🃏 Puxar Carta</button>
+      <button class="btn-secondary" onclick="toggleLegend()">📋 Ver legenda dos ícones</button>
+    </div>
+
+    <!-- Legenda -->
+    <div class="legend-block">
+      <div class="legend-toggle" onclick="toggleLegend()" id="legend-toggle-btn">▶ Mostrar legenda</div>
+      <div class="legend-items" id="legend-items">
+        <div class="legend-item"><span class="legend-ico">🌱</span><div class="legend-txt"><div class="legend-nm">Cotilédone — Avance 4 ⬆️</div><div class="legend-dc">Primeira folha após germinação</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🌵</span><div class="legend-txt"><div class="legend-nm">Cacto — Pula rodada ⏸️</div><div class="legend-dc">Espinhos = folhas adaptadas ao seco</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🌼</span><div class="legend-txt"><div class="legend-nm">Margarida — Volte 3 ⬇️</div><div class="legend-dc">Família Asteraceae — cada pétala é uma flor!</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🍎</span><div class="legend-txt"><div class="legend-nm">Fruto — Avance 3 ⬆️</div><div class="legend-dc">Ovário maduro da flor</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🌸</span><div class="legend-txt"><div class="legend-nm">Flor — Curiosidade ✨</div><div class="legend-dc">Mantém posição — cada flor, uma história</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🐞</span><div class="legend-txt"><div class="legend-nm">Joaninha — Avance 4 ⬆️</div><div class="legend-dc">Aliada: come pulgões que atacam plantas</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🍇</span><div class="legend-txt"><div class="legend-nm">Uva — 🎁 BRINDE!</div><div class="legend-dc">Prêmio especial — retirar com o professor</div></div></div>
+        <div class="legend-item"><span class="legend-ico">🎴</span><div class="legend-txt"><div class="legend-nm">Pergaminho — +1 pergunta 📖</div><div class="legend-dc">Acertou → joga o dado de novo!</div></div></div>
+        <div class="legend-item"><span class="legend-ico">❓</span><div class="legend-txt"><div class="legend-nm">Mistério — ±2 casas 🎲</div><div class="legend-dc">Pode avançar ou voltar — surpresa!</div></div></div>
+      </div>
+    </div>
+
+    <!-- Debug bar -->
+    <div id="debug-bar">
+      <label>Jog:</label>
+      <select id="dbg-nplayers"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+      <label>Casas:</label>
+      <input id="dbg-steps" type="number" min="1" max="12" value="3" style="width:40px">
+      <button onclick="dbgMove()">▶ Mover</button>
+      <button onclick="dbgReset()">↺ Reset</button>
+    </div>
+  </aside>
+
+  <!-- ══ BOARD ══ -->
+  <main id="board-area">
+    <div id="board-scroll">
+      <div id="board-outer">
+        <svg id="track-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="cells-layer"></div>
+      </div>
+    </div>
+    <div class="fim-label">🏁 Fim da Expedição Botânica</div>
+  </main>
+</div>
+
+<!-- VICTORY MODAL -->
+<div id="victory-modal" class="overlay">
+  <div class="victory-box">
+    <h1>🏆 FIM DE JOGO! 🏆</h1>
+    <h2 id="winner-name">—</h2>
+    <p id="winner-sub">Parabéns!</p>
+    <div class="podium-list" id="podium-list"></div>
+    <button class="btn-home" onclick="voltarAoInicio()">Voltar ao Menu Inicial</button>
+  </div>
+</div>
+
+<!-- ICON CARD MODAL -->
+<div id="icon-modal" class="overlay">
+  <div class="icon-box">
+    <span class="ic-emoji" id="ic-emoji">🌱</span>
+    <div class="ic-name"   id="ic-name">Planta</div>
+    <div class="ic-info"   id="ic-info">Informação.</div>
+    <div class="ic-effect" id="ic-effect">Efeito</div>
+    <button class="btn-ic-ok" id="btn-ic-ok" onclick="closeIconCard()">OK, entendido!</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════════════════ */
+const TOTAL    = 36;
+const P_COLORS = ['#2c80e8','#111111','#f5c430','#fff','#c060f0'];
+const P_NAMES  = ['Azul','Preto','Amarelo','Branco','Roxo'];
+
+const ICONS = [
+  '','','','','','🌸','','🌱','','❓',
+  '','🍇','🍎','','','','','🌸','🐞','🍎',
+  '','❓','','🍇','🎴','🌵','','','','🌸',
+  '🌼','🍎','','','','🏁'
+];
+
+const ICON_CARDS = {
+  '🌱': [{
+    name:'Cotilédone', btnText:'🌿 Avançar 4 casas!',
+    info:'O cotilédone é, após a germinação, o início da jornada da planta — a primeira folha que alimenta o embrião enquanto as raízes ainda não conseguem absorver nutrientes do solo.',
+    effectText:'🌿 Avance 4 casas!', effect:{type:'move',value:4}
+  }],
+  '🌵': [{
+    name:'Cacto Espinhoso',
+    info:'As folhas do cacto se transformaram em espinhos para evitar a perda de água por transpiração em ambientes muito secos — mas cuidado, eles são afiados!',
+    effectText:'⏸️ Não jogue na próxima rodada!', effect:{type:'skip',value:1}
+  }],
+  '🌼': [{
+    name:'Margarida',
+    info:'A margarida pertence à família Asteraceae — uma das maiores famílias botânicas. Suas "pétalas" são, na verdade, flores individuais chamadas flores-liguladas!',
+    effectText:'⬇️ Volte 3 casas!', effect:{type:'move',value:-3}
+  }],
+  '🍎': [
+    { name:'Fruto Verdadeiro', info:'O fruto é o ovário maduro da flor, que protege e nutre as sementes. Só as angiospermas (plantas com flores) produzem frutos verdadeiros!', effectText:'⬆️ Avance 3 casas!', effect:{type:'move',value:3} },
+    { name:'Dispersão de Sementes', info:'Frutas carnosas atraem animais que comem o fruto e dispersam as sementes longe — um exemplo incrível de coevolução entre plantas e animais!', effectText:'⬆️ Avance 3 casas!', effect:{type:'move',value:3} }
+  ],
+  '🌸': [
+    { name:'Flor de Cerejeira', info:'As flores de cerejeira (sakura) duram apenas cerca de 2 semanas por ano no Japão. Elas representam a beleza efêmera da natureza na cultura japonesa.', effectText:'✨ Mantenha sua posição — que bela flor!', effect:{type:'move',value:0} },
+    { name:'Polinização Cruzada', info:'As flores evoluíram cores e perfumes para atrair polinizadores como abelhas, borboletas e beija-flores, garantindo a fecundação cruzada entre plantas diferentes.', effectText:'✨ Mantenha sua posição — natureza linda!', effect:{type:'move',value:0} },
+    { name:'Pétalas Florais', info:'As pétalas são folhas modificadas que evoluíram para atrair polinizadores. A cor vem de pigmentos como antocianinas, carotenoides e flavonoides.', effectText:'✨ Mantenha sua posição — florescer é belo!', effect:{type:'move',value:0} }
+  ],
+  '🐞': [{
+    name:'Joaninha Protetora',
+    info:'A joaninha é uma aliada das plantas! Ela se alimenta de pulgões (afídeos), que sugam a seiva e prejudicam as plantas. Uma única joaninha come até 5.000 pulgões na vida!',
+    effectText:'⬆️ Avance 4 casas — a joaninha te protegeu!', effect:{type:'move',value:4}
+  }],
+  '🍇': [{
+    name:'🎁 Brinde da Expedição!', btnText:'🎉 Uhuul! Retirar prêmio!',
+    info:'A uva é uma baga verdadeira da família Vitaceae, cultivada há mais de 8.000 anos. Você encontrou um tesouro raro na expedição botânica!',
+    effectText:'🎁 PARABÉNS! Você ganhou um brinde — retire com o professor!',
+    effect:{type:'prize',value:0}
+  }],
+  '🎴': [{
+    name:'Carta Bônus — Segunda Chance! 📖',
+    info:'Você encontrou um pergaminho raro! O conhecimento é a melhor ferramenta de um explorador. Responda mais uma pergunta e, se acertar, jogue o dado de novo!',
+    effectText:'📖 Responda mais 1 pergunta! Se acertar, jogue novamente!',
+    effect:{type:'extra_question',value:1}
+  }],
+  '❓': [
+    { name:'Mistério Botânico!', info:'A Botânica estuda mais de 400.000 espécies de plantas — e ainda há muitas por descobrir! A cada ano surgem centenas de novas espécies.', effectText:'🎲 Sorte ou azar? Avance 2 casas!', effect:{type:'move',value:2} },
+    { name:'Planta Desconhecida!', info:'Estima-se que 15% das plantas da Amazônia ainda não foram classificadas pela ciência. A floresta guarda segredos que podem salvar vidas!', effectText:'🎲 Mistério resolvido! Volte 2 casas!', effect:{type:'move',value:-2} }
+  ]
+};
+
+const iconVariantIdx = {};
+const SPECIAL_ICONS  = new Set(Object.keys(ICON_CARDS));
+
+/* ══════════════════════════════════════════════════════
+   BOARD — SNAKE COM MAIS COLUNAS PARA TELA LARGA
+══════════════════════════════════════════════════════ */
+function buildSnakePoints(W, cellR) {
+  const COLS = 9;  // mais colunas para aproveitar a largura
+  const ROWS = Math.ceil(TOTAL / COLS);
+  const padH = cellR * 1.6;
+  const padV = cellR * 1.8;
+  const stepX = (W - padH * 2) / (COLS - 1);
+  const stepY = cellR * 3.4;
+  const pts = [];
+  for (let r = 0; r < ROWS; r++) {
+    const rev = (r % 2 === 1);
+    for (let c = 0; c < COLS; c++) {
+      const idx = r * COLS + (rev ? (COLS - 1 - c) : c);
+      if (idx >= TOTAL) continue;
+      const x = padH + c * stepX;
+      const y = padV + r * stepY;
+      pts[idx] = { x, y };
+    }
+  }
+  const totalH = padV + (ROWS - 1) * stepY + cellR * 2.5;
+  return { pts, totalH };
+}
+
+function catmullRomPath(points) {
+  if (points.length < 2) return '';
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(i-1,0)], p1 = points[i];
+    const p2 = points[i+1], p3 = points[Math.min(i+2,points.length-1)];
+    const cp1x = p1.x+(p2.x-p0.x)/6, cp1y = p1.y+(p2.y-p0.y)/6;
+    const cp2x = p2.x-(p3.x-p1.x)/6, cp2y = p2.y-(p3.y-p1.y)/6;
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+
+const cellEls = {};
+
+function buildBoard() {
+  const outer = document.getElementById('board-outer');
+  const svg   = document.getElementById('track-svg');
+  const layer = document.getElementById('cells-layer');
+  svg.innerHTML = ''; layer.innerHTML = '';
+
+  const W = outer.clientWidth || 800;
+  const cellR = Math.min(46, W * 0.052);
+  const cellSize = cellR * 2;
+
+  const { pts, totalH } = buildSnakePoints(W, cellR);
+  layer.style.height = totalH + 'px';
+  outer.style.minHeight = totalH + 'px';
+
+  const pathD = catmullRomPath(pts);
+  [
+    ['rgba(0,0,0,.45)', cellSize*1.4+4],
+    ['#1e4808', cellSize*1.35+2],
+    ['#3d8620', cellSize*1.25],
+  ].forEach(([stroke, width]) => {
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', pathD); p.setAttribute('fill','none');
+    p.setAttribute('stroke', stroke); p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+    svg.appendChild(p);
+  });
+  const shine = document.createElementNS('http://www.w3.org/2000/svg','path');
+  shine.setAttribute('d', pathD); shine.setAttribute('fill','none');
+  shine.setAttribute('stroke','rgba(255,255,255,.1)');
+  shine.setAttribute('stroke-width', cellSize*0.35);
+  shine.setAttribute('stroke-linecap','round');
+  shine.setAttribute('stroke-dasharray', `${cellSize*0.5} ${cellSize*0.8}`);
+  svg.appendChild(shine);
+
+  pts.forEach((pt, idx) => {
+    const div = document.createElement('div');
+    div.className = 'cell ' + (idx % 2 === 0 ? 'L' : 'D');
+    div.id = 'c' + idx;
+    div.dataset.i = idx;
+    div.style.left = pt.x + 'px'; div.style.top = pt.y + 'px';
+    div.style.width = cellSize + 'px'; div.style.height = cellSize + 'px';
+    div.style.fontSize = Math.max(16, cellSize * 0.48) + 'px';
+    if (idx === 0) div.classList.add('start');
+    if (idx === TOTAL - 1) div.classList.add('fim');
+
+    const ic = document.createElement('span');
+    ic.textContent = ICONS[idx] || '🌿';
+    div.appendChild(ic);
+
+    const nb = document.createElement('div');
+    nb.className = 'num'; nb.textContent = idx + 1;
+    div.appendChild(nb);
+
+    const pw = document.createElement('div');
+    pw.className = 'pawns';
+    div.appendChild(pw);
+
+    layer.appendChild(div);
+    cellEls[idx] = div;
+  });
+
+  // Map label
+  const lbl = document.createElement('div');
+  lbl.className = 'map-lbl';
+  lbl.style.left = (pts[0].x + cellR + 6) + 'px';
+  lbl.style.top  = (pts[0].y - cellR - 8) + 'px';
+  lbl.textContent = 'Início ↗';
+  layer.appendChild(lbl);
+
+  // Decorações
+  const decos = [
+    {px:.01,py:.05,e:'🌋',f:50},{px:.01,py:.18,e:'🌲',f:32},{px:.01,py:.35,e:'🌿',f:26},
+    {px:.01,py:.52,e:'🌳',f:32},{px:.01,py:.70,e:'🍃',f:24},{px:.01,py:.88,e:'🏔️',f:36},
+    {px:.92,py:.08,e:'🌲',f:30},{px:.94,py:.25,e:'🌿',f:24},{px:.91,py:.42,e:'🌳',f:30},
+    {px:.93,py:.60,e:'🍃',f:24},{px:.92,py:.78,e:'🌲',f:28},{px:.93,py:.95,e:'🌳',f:28},
+    {px:.38,py:.28,e:'🌲',f:26},{px:.48,py:.32,e:'🌲',f:20},{px:.32,py:.55,e:'🍇',f:24},
+    {px:.55,py:.62,e:'🌸',f:22},{px:.42,py:.75,e:'🌼',f:20},{px:.62,py:.82,e:'🍇',f:22},
+  ];
+  decos.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'deco';
+    el.style.left = (d.px * W) + 'px';
+    el.style.top  = (d.py * totalH) + 'px';
+    el.style.fontSize = d.f + 'px';
+    el.textContent = d.e;
+    layer.appendChild(el);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   ESTADO
+══════════════════════════════════════════════════════ */
+let players=[], positions=[], turn=0, finishers=[], winCount=1, skips=[];
+
+function load() {
+  try {
+    const raw = localStorage.getItem('expedicao_jogadores');
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (typeof p==='number') { const n=Math.min(Math.max(p,2),5); players=Array.from({length:n},(_,i)=>({nome:P_NAMES[i],cor:P_COLORS[i]})); }
+      else if (Array.isArray(p)) { players=p.map((x,i)=>({nome:x.nome||P_NAMES[i],cor:x.cor||P_COLORS[i]})); }
+    }
+  } catch(_) {}
+  if (!players.length) players=[{nome:'Azul',cor:P_COLORS[0]},{nome:'Preto',cor:P_COLORS[1]}];
+  try { const r=localStorage.getItem('posicoes_jogadores'); if(r) positions=JSON.parse(r); } catch(_) {}
+  while(positions.length<players.length) positions.push(0);
+  positions=positions.slice(0,players.length);
+  try { turn=parseInt(localStorage.getItem('turno_atual')||'0')||0; } catch(_) {}
+  turn=((turn%players.length)+players.length)%players.length;
+  try { const r=localStorage.getItem('expedicao_finishers'); if(r) finishers=JSON.parse(r); } catch(_) {}
+  try { const r=localStorage.getItem('expedicao_skips'); if(r) skips=JSON.parse(r); } catch(_) {}
+  while(skips.length<players.length) skips.push(0);
+  try { winCount=Math.min(Math.max(parseInt(localStorage.getItem('expedicao_wincount')||'1'),1),players.length); } catch(_) {}
+  updateWinCountSelect();
+  const sel=document.getElementById('dbg-nplayers'); if(sel) sel.value=String(players.length);
+}
+
+function save() {
+  localStorage.setItem('posicoes_jogadores',JSON.stringify(positions));
+  localStorage.setItem('turno_atual',String(turn));
+  localStorage.setItem('casas_para_andar','0');
+  localStorage.setItem('expedicao_finishers',JSON.stringify(finishers));
+  localStorage.setItem('expedicao_skips',JSON.stringify(skips));
+  localStorage.setItem('expedicao_wincount',String(winCount));
+}
+
+function updateWinCountSelect() {
+  const sel=document.getElementById('win-count-sel'); sel.innerHTML='';
+  for(let i=1;i<=players.length;i++) {
+    const o=document.createElement('option'); o.value=i;
+    o.textContent=i===1?'1 jogador':`${i} jogadores`; sel.appendChild(o);
+  }
+  sel.value=String(winCount);
+}
+function setWinCount(v) { winCount=parseInt(v)||1; localStorage.setItem('expedicao_wincount',String(winCount)); renderWinBar(); }
+
+/* ══════════════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════════════ */
+function renderPawns() {
+  document.querySelectorAll('.pawns').forEach(p=>p.innerHTML='');
+  Object.values(cellEls).forEach(c=>c.classList.remove('finished-cell'));
+  players.forEach((pl,i)=>{
+    const pos=positions[i]??0, cell=cellEls[pos]; if(!cell) return;
+    if(finishers.includes(i)&&pos>=TOTAL-1) cell.classList.add('finished-cell');
+    const pw=document.createElement('div');
+    pw.className='pawn'; pw.style.background=pl.cor;
+    pw.dataset.pi=i;
+    cell.querySelector('.pawns').appendChild(pw);
+  });
+}
+
+function renderPanel() {
+  const pl=players[turn]||players[0];
+  document.getElementById('turn-dot').style.background=pl.cor;
+  const skipCount=skips[turn]||0;
+  document.getElementById('turn-lbl').textContent=skipCount>0?`${pl.nome} — pula rodada!`:pl.nome;
+  const sb=document.getElementById('skip-badge');
+  sb.style.display=skipCount>0?'':'none';
+  if(skipCount>0) sb.textContent=`⏸ ${skipCount}x`;
+
+  const list=document.getElementById('pl-list'); list.innerHTML='';
+  players.forEach((p,i)=>{
+    const row=document.createElement('div'); row.className='player-row';
+    if(i===turn) row.classList.add('active-turn');
+    if(finishers.includes(i)) row.classList.add('finished');
+    row.innerHTML=`<span class="pl-dot" style="background:${p.cor};${p.cor==='#fff'?'border-color:#888':''}"></span><span class="pl-name">${p.nome}</span><span class="pl-pos">Casa ${(positions[i]??0)+1}</span>${finishers.includes(i)?'<span class="pl-fin">🏁</span>':''}`;
+    list.appendChild(row);
+  });
+}
+
+function renderWinBar() {
+  document.getElementById('win-count-sel').value=String(winCount);
+  const fb=document.getElementById('finisher-badges'); fb.innerHTML='';
+  finishers.forEach(fi=>{
+    const b=document.createElement('div'); b.className='fin-badge';
+    b.innerHTML=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${players[fi].cor};border:1.5px solid rgba(255,255,255,.4)"></span>${players[fi].nome}`;
+    fb.appendChild(b);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   LEGEND
+══════════════════════════════════════════════════════ */
+let legendOpen=false;
+function toggleLegend() {
+  legendOpen=!legendOpen;
+  document.getElementById('legend-items').classList.toggle('open',legendOpen);
+  document.getElementById('legend-toggle-btn').textContent=(legendOpen?'▼ ':'▶ ')+'Legenda dos ícones';
+}
+
+/* ══════════════════════════════════════════════════════
+   ICON CARD
+══════════════════════════════════════════════════════ */
+let iconCardResolve=null, pendingIconEffect=null;
+
+function showIconCard(icon) {
+  return new Promise(resolve=>{
+    const cards=ICON_CARDS[icon]; if(!cards||!cards.length){resolve(null);return;}
+    if(iconVariantIdx[icon]===undefined) iconVariantIdx[icon]=0;
+    const card=cards[iconVariantIdx[icon]%cards.length];
+    iconVariantIdx[icon]=(iconVariantIdx[icon]+1)%cards.length;
+
+    document.getElementById('ic-emoji').textContent=icon;
+    document.getElementById('ic-name').textContent=card.name;
+    document.getElementById('ic-info').textContent=card.info;
+    document.getElementById('ic-effect').textContent=card.effectText;
+
+    const okBtn=document.getElementById('btn-ic-ok');
+    okBtn.textContent=card.btnText||'OK, entendido!';
+    if(card.effect&&card.effect.type==='prize') {
+      okBtn.style.background='linear-gradient(150deg,#e040fb,#7b1fa2)';
+      okBtn.style.boxShadow='0 3px 0 #4a148c'; okBtn.style.border='2px solid #ce93d8';
+    } else {
+      okBtn.style.background='linear-gradient(150deg,#f5c542,#c8880a)';
+      okBtn.style.boxShadow='0 3px 0 #5a3800'; okBtn.style.border='2px solid #7a5000';
+    }
+    pendingIconEffect=card.effect; iconCardResolve=resolve;
+    document.getElementById('icon-modal').classList.add('active');
+  });
+}
+
+function closeIconCard() {
+  document.getElementById('icon-modal').classList.remove('active');
+  const effect=pendingIconEffect; pendingIconEffect=null;
+  if(iconCardResolve){iconCardResolve(effect);iconCardResolve=null;}
+}
+
+/* ══════════════════════════════════════════════════════
+   MOVIMENTO
+══════════════════════════════════════════════════════ */
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function movePawn(pi,steps) {
+  const from=positions[pi]??0, to=Math.min(from+Math.abs(steps),TOTAL-1);
+  const dir=steps>=0?1:-1;
+  const start=from, end=steps>=0?to:Math.max(from+steps,0);
+  const pts=[]; if(dir>0){for(let p=start+1;p<=to;p++) pts.push(p);}
+  else{for(let p=start-1;p>=end;p--) pts.push(p);}
+  for(const p of pts){
+    positions[pi]=p; renderPawns();
+    const c=cellEls[p];
+    if(c){c.classList.add('active'); c.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'}); setTimeout(()=>c.classList.remove('active'),500);}
+    await delay(200);
+  }
+  const finalPos=pts.length?pts[pts.length-1]:(positions[pi]??0);
+  positions[pi]=finalPos;
+  const finalCell=cellEls[finalPos];
+  if(finalCell){const pw=finalCell.querySelector(`.pawn[data-pi="${pi}"]`); if(pw){pw.classList.add('moving');setTimeout(()=>pw.classList.remove('moving'),750);}}
+  return finalPos;
+}
+
+let busy=false;
+async function checkMove() {
+  if(busy) return; busy=true;
+  try {
+    let steps=parseInt(localStorage.getItem('casas_para_andar')||'0')||0;
+    if(steps>0){
+      try{turn=parseInt(localStorage.getItem('turno_atual')||'0')||0;}catch(_){}
+      turn=((turn%players.length)+players.length)%players.length;
+
+      if((skips[turn]||0)>0){
+        skips[turn]--;
+        localStorage.setItem('casas_para_andar','0');
+        turn=(turn+1)%players.length;
+        save(); renderPanel(); renderPawns(); renderWinBar(); busy=false; return;
+      }
+      if(finishers.includes(turn)){
+        localStorage.setItem('casas_para_andar','0');
+        turn=(turn+1)%players.length;
+        save(); renderPanel(); renderPawns(); renderWinBar(); busy=false; return;
+      }
+
+      const landedPos=await movePawn(turn,steps);
+      const landedIcon=ICONS[landedPos];
+
+      if(SPECIAL_ICONS.has(landedIcon)&&landedPos<TOTAL-1){
+        const effect=await showIconCard(landedIcon);
+        if(effect){
+          if(effect.type==='move'&&effect.value!==0){
+            const newPos=await movePawn(turn,effect.value);
+            positions[turn]=newPos; renderPawns(); await delay(300);
+          } else if(effect.type==='skip'){
+            skips[turn]=(skips[turn]||0)+effect.value;
+          } else if(effect.type==='extra_question'){
+            localStorage.setItem('carta_extra','1');
+            localStorage.setItem('casas_para_andar','0');
+            save(); busy=false;
+            window.location.href='cartas.html'; return;
+          }
+        }
+      }
+
+      const pos=positions[turn];
+      if(pos>=TOTAL-1&&!finishers.includes(turn)){
+        finishers.push(turn); renderPanel(); renderPawns(); renderWinBar(); await delay(400);
+        if(finishers.length>=winCount){
+          const modal=document.getElementById('victory-modal');
+          const wn=document.getElementById('winner-name'), ws=document.getElementById('winner-sub');
+          const pl=document.getElementById('podium-list'); pl.innerHTML='';
+          if(finishers.length===1){wn.textContent=players[finishers[0]].nome; wn.style.color=players[finishers[0]].cor; ws.textContent='Parabéns por concluir a Expedição Botânica!';}
+          else{wn.textContent='🏆 CAMPEÕES!'; wn.style.color='#f5c542'; ws.textContent=`${finishers.length} exploradores chegaram ao fim!`;}
+          const medals=['🥇','🥈','🥉'];
+          finishers.forEach((fi,rank)=>{const item=document.createElement('div');item.className='podium-item';item.innerHTML=`<span>${medals[rank]||`#${rank+1}`}</span><span class="podium-dot" style="background:${players[fi].cor}"></span><span>${players[fi].nome}</span>`;pl.appendChild(item);});
+          modal.classList.add('active'); save(); busy=false; return;
+        }
+      }
+
+      turn=(turn+1)%players.length;
+      let att=0; while(finishers.includes(turn)&&att<players.length){turn=(turn+1)%players.length;att++;}
+      save(); renderPanel(); renderPawns(); renderWinBar();
+    }
+  } catch(e){console.warn(e);}
+  busy=false;
+}
+
+function voltarAoInicio(){
+  ['posicoes_jogadores','turno_atual','casas_para_andar','expedicao_finishers','expedicao_skips'].forEach(k=>localStorage.removeItem(k));
+  window.location.href='index.html';
+}
+
+/* ══ DEBUG ══ */
+function dbgMove(){localStorage.setItem('casas_para_andar',String(parseInt(document.getElementById('dbg-steps').value)||3));checkMove();}
+function dbgReset(){
+  const n=parseInt(document.getElementById('dbg-nplayers').value)||2;
+  players=Array.from({length:n},(_,i)=>({nome:P_NAMES[i],cor:P_COLORS[i]}));
+  positions=Array(n).fill(0); skips=Array(n).fill(0); finishers=[]; turn=0;
+  localStorage.setItem('expedicao_jogadores',JSON.stringify(players));
+  ['expedicao_finishers','expedicao_skips','expedicao_perguntas_usadas'].forEach(k=>localStorage.removeItem(k));
+  updateWinCountSelect(); save(); renderPawns(); renderPanel(); renderWinBar();
+}
+function irCartas(){window.location.href='cartas.html';}
+
+/* ══ LISTENERS ══ */
+window.addEventListener('storage',e=>{
+  const keys=['casas_para_andar','posicoes_jogadores','turno_atual','expedicao_jogadores'];
+  if(keys.includes(e.key)){load();renderPanel();renderPawns();renderWinBar();if(e.key==='casas_para_andar')checkMove();}
+});
+let _lastSteps=0;
+setInterval(()=>{
+  try{const v=parseInt(localStorage.getItem('casas_para_andar')||'0')||0;
+  if(v>0&&v!==_lastSteps){_lastSteps=v;checkMove();}else if(v===0)_lastSteps=0;}catch(_){}
+},400);
+let resizeTimer;
+window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{buildBoard();renderPawns();},200);});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  load(); buildBoard(); renderPawns(); renderPanel(); renderWinBar(); checkMove();
+});
+</script>
+</body>
+</html>
