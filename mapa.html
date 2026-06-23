@@ -168,7 +168,7 @@ html, body {
   width: 100%;
   max-width: 500px;
   margin: 14px auto 0;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   display: flex;
   justify-content: center;
 }
@@ -193,7 +193,7 @@ html, body {
   max-width: 500px;
   margin: 0 auto;
   position: relative;
-  padding-bottom: 15px;
+  padding-bottom: 30px;
 }
 
 #track-svg {
@@ -460,6 +460,84 @@ html, body {
   width: 100%;
 }
 .btn-ic-ok:active { transform: translateY(2px); }
+
+/* ── LEGEND BUTTON ── */
+.btn-legend {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 200;
+  background: linear-gradient(140deg,#2a6010,#4b9e2a);
+  color: #c8f060;
+  border: 2px solid #7ed957;
+  border-radius: 50%;
+  width: 48px; height: 48px;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s;
+}
+.btn-legend:active { transform: scale(.92); }
+
+/* ── LEGEND MODAL ── */
+.legend-modal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.legend-modal.active { opacity: 1; pointer-events: auto; }
+.legend-box {
+  background: linear-gradient(140deg,#1a3008,#2c5418);
+  border: 3px solid #7ed957;
+  border-radius: 18px;
+  padding: 22px 20px 18px;
+  max-width: 340px;
+  width: 92%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0,0,0,.8);
+}
+.legend-box h3 {
+  color: #c8f060;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 14px;
+  letter-spacing: 1px;
+}
+.legend-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(126,217,87,.2);
+}
+.legend-row:last-child { border-bottom: none; }
+.legend-emoji { font-size: 30px; flex-shrink: 0; min-width: 36px; text-align: center; }
+.legend-text { flex: 1; }
+.legend-name { color: #dff0a0; font-size: 14px; font-weight: bold; }
+.legend-desc { color: #aaa; font-size: 12px; margin-top: 2px; font-family: 'Segoe UI', sans-serif; line-height: 1.4; }
+.btn-legend-close {
+  width: 100%;
+  margin-top: 16px;
+  background: linear-gradient(150deg,#f5c542,#c8880a);
+  color: #fff;
+  border: 2px solid #7a5000;
+  border-radius: 14px;
+  padding: 10px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #5a3800;
+}
+.btn-legend-close:active { transform: translateY(2px); }
 </style>
 </head>
 <body>
@@ -487,6 +565,7 @@ html, body {
     <div class="pl-list" id="pl-list"></div>
   </div>
   <button class="btn-carta" onclick="irCartas()">🃏 Carta</button>
+  <button class="btn-carta" style="background:linear-gradient(150deg,#3a9a60,#1a6a30);border-color:#0a3a10;box-shadow:0 3px 0 #082808" onclick="abrirLegenda()">📋 Legenda</button>
 </div>
 
 <!-- WIN CONDITION BAR -->
@@ -524,6 +603,80 @@ html, body {
   </div>
 </div>
 
+<!-- LEGEND BUTTON -->
+<button class="btn-legend" onclick="toggleLegend()" title="Ver legenda dos ícones">📋</button>
+
+<!-- LEGEND MODAL -->
+<div id="legend-modal" class="legend-modal" onclick="if(event.target===this)toggleLegend()">
+  <div class="legend-box">
+    <h3>📋 Legenda das Casas</h3>
+    <div class="legend-row">
+      <span class="legend-emoji">🌱</span>
+      <div class="legend-text">
+        <div class="legend-name">Cotilédone — Avance 4 casas ⬆️</div>
+        <div class="legend-desc">A primeira folha após a germinação. Sorte do explorador!</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🌵</span>
+      <div class="legend-text">
+        <div class="legend-name">Cacto — Pula 1 rodada ⏸️</div>
+        <div class="legend-desc">Folhas viram espinhos para sobreviver ao deserto. Cuidado!</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🌼</span>
+      <div class="legend-text">
+        <div class="legend-name">Margarida — Volte 3 casas ⬇️</div>
+        <div class="legend-desc">Família Asteraceae. Cada "pétala" é uma flor individual!</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🍎</span>
+      <div class="legend-text">
+        <div class="legend-name">Fruto — Avance 3 casas ⬆️</div>
+        <div class="legend-desc">Ovário maduro da flor. Só angiospermas produzem frutos verdadeiros!</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🌸</span>
+      <div class="legend-text">
+        <div class="legend-name">Flor — Curiosidade botânica ✨</div>
+        <div class="legend-desc">Cada flor conta uma história diferente. Mantenha sua posição.</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🐞</span>
+      <div class="legend-text">
+        <div class="legend-name">Joaninha — Avance 4 casas ⬆️</div>
+        <div class="legend-desc">Come pulgões que atacam as plantas. Sua aliada na expedição!</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🍇</span>
+      <div class="legend-text">
+        <div class="legend-name">Uva — 🎁 BRINDE especial!</div>
+        <div class="legend-desc">Você ganhou um prêmio! Retirar com o professor.</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">🎴</span>
+      <div class="legend-text">
+        <div class="legend-name">Pergaminho — Responda +1 pergunta 📖</div>
+        <div class="legend-desc">Se acertar, jogue o dado novamente! Segunda chance botânica.</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span class="legend-emoji">❓</span>
+      <div class="legend-text">
+        <div class="legend-name">Mistério — Avança ou volta 2 casas 🎲</div>
+        <div class="legend-desc">Destino incerto! Pode ser boa ou má surpresa.</div>
+      </div>
+    </div>
+    <button class="btn-legend-close" onclick="toggleLegend()">Fechar</button>
+  </div>
+</div>
+
 <!-- ICON CARD MODAL -->
 <div id="icon-modal" class="icon-modal">
   <div class="icon-card">
@@ -540,20 +693,20 @@ html, body {
    CONFIGURAÇÕES
 ══════════════════════════════════════════════════════ */
 const TOTAL = 36;
-const P_COLORS = ['#2c80e8','#e83030','#f5c430','#fff','#c060f0'];
-const P_NAMES  = ['Azul','Vermelho','Amarelo','Branco','Roxo'];
+const P_COLORS = ['#2c80e8','#111111','#f5c430','#fff','#c060f0'];
+const P_NAMES  = ['Azul','Preto','Amarelo','Branco','Roxo'];
 
 const ICONS = [
   '','','','','','🌸','','🌱','','❓',
   '','🍇','🍎','','','','','🌸','🐞','🍎',
-  '','❓','','','🍎','🌵','','','','🌸',
+  '','❓','','🍇','🎴','🌵','','','','🌸',
   '🌼','🍎','','','','🏁'
 ];
+// posições especiais (1-based para referência):
+// 12=🍇(uva), 24=🍇(uva), 25=🎴(pergunta bônus)
 
 // ── DADOS DOS ÍCONES ESPECIAIS ──
-// effect: { type: 'move'|'skip', value: number }
-//   move: positivo = avançar, negativo = voltar
-//   skip: pula rodada
+// effect types: 'move' | 'skip' | 'prize' | 'extra_question'
 const ICON_CARDS = {
   '🌱': [
     {
@@ -623,10 +776,19 @@ const ICON_CARDS = {
   ],
   '🍇': [
     {
-      name: 'Uva — Fruto em Cacho',
-      info: 'A uva é classificada botanicamente como uma baga verdadeira. O cacho de uvas é tecnicamente chamado de "cacho racemoso" — cada baginha desenvolvida de um único carpelo.',
-      effectText: '✨ Mantenha sua posição — deliciosa parada!',
-      effect: { type: 'move', value: 0 }
+      name: '🎁 Brinde da Expedição!',
+      info: 'A uva é uma baga verdadeira da família Vitaceae, cultivada há mais de 8.000 anos — uma das plantas mais antigas domesticadas pela humanidade. Você encontrou um tesouro raro na expedição!',
+      effectText: '🎁 PARABÉNS! Você ganhou um brinde — retire com o professor!',
+      effect: { type: 'prize', value: 0 },
+      btnText: '🎉 Uhuul! Retirar prêmio!'
+    }
+  ],
+  '🎴': [
+    {
+      name: 'Carta Bônus — Segunda Chance! 📖',
+      info: 'Você encontrou um pergaminho raro da expedição botânica! O conhecimento é a melhor ferramenta de um explorador. Responda mais uma pergunta e, se acertar, jogue o dado de novo!',
+      effectText: '📖 Responda mais 1 pergunta! Se acertar, jogue o dado novamente!',
+      effect: { type: 'extra_question', value: 1 }
     }
   ],
   '❓': [
@@ -835,8 +997,8 @@ function load() {
     }
   } catch (_) {}
   if (!players.length) players = [
-    { nome: 'Azul',     cor: P_COLORS[0] },
-    { nome: 'Vermelho', cor: P_COLORS[1] },
+    { nome: 'Azul',   cor: P_COLORS[0] },
+    { nome: 'Preto',  cor: P_COLORS[1] },
   ];
 
   try {
@@ -975,6 +1137,20 @@ function showIconCard(icon) {
     document.getElementById('ic-info').textContent = card.info;
     document.getElementById('ic-effect').textContent = card.effectText;
 
+    // Botão customizado (para brinde da uva, etc.)
+    const okBtn = document.getElementById('btn-ic-ok');
+    okBtn.textContent = card.btnText || 'OK, entendido!';
+    // Estilo especial para brinde
+    if (card.effect && card.effect.type === 'prize') {
+      okBtn.style.background = 'linear-gradient(150deg,#e040fb,#7b1fa2)';
+      okBtn.style.boxShadow = '0 3px 0 #4a148c';
+      okBtn.style.border = '2px solid #ce93d8';
+    } else {
+      okBtn.style.background = 'linear-gradient(150deg,#f5c542,#c8880a)';
+      okBtn.style.boxShadow = '0 3px 0 #5a3800';
+      okBtn.style.border = '2px solid #7a5000';
+    }
+
     pendingIconEffect = card.effect;
     iconCardResolve = resolve;
     document.getElementById('icon-modal').classList.add('active');
@@ -989,6 +1165,10 @@ function closeIconCard() {
     iconCardResolve(effect);
     iconCardResolve = null;
   }
+}
+
+function toggleLegend() {
+  document.getElementById('legend-modal').classList.toggle('active');
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1065,7 +1245,6 @@ async function checkMove() {
 
       // Check for special icon BEFORE checking if it's the finish
       if (SPECIAL_ICONS.has(landedIcon) && landedPos < TOTAL - 1) {
-        // Show icon card
         const effect = await showIconCard(landedIcon);
         if (effect) {
           if (effect.type === 'move' && effect.value !== 0) {
@@ -1075,6 +1254,16 @@ async function checkMove() {
             await delay(300);
           } else if (effect.type === 'skip') {
             skips[turn] = (skips[turn] || 0) + effect.value;
+          } else if (effect.type === 'prize') {
+            // Brinde — apenas exibe o card, não move nem pula
+          } else if (effect.type === 'extra_question') {
+            // Redireciona para cartas com flag de "extra"
+            localStorage.setItem('carta_extra', '1');
+            localStorage.setItem('casas_para_andar', '0');
+            save();
+            busy = false;
+            window.location.href = 'cartas.html';
+            return;
           }
         }
       }
@@ -1218,5 +1407,50 @@ document.addEventListener('DOMContentLoaded', () => {
   checkMove();
 });
 </script>
+
+<!-- LEGENDA MODAL -->
+<div id="legenda-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:997;opacity:0;pointer-events:none;transition:opacity .3s" id="legenda-modal">
+  <div style="background:linear-gradient(140deg,#1e3a0e,#2c5c18);border:3px solid #7ed957;border-radius:18px;padding:22px 20px;max-width:340px;width:92%;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.8)">
+    <div style="text-align:center;color:#c8f060;font-size:20px;margin-bottom:16px;letter-spacing:1px">📋 LEGENDA DO MAPA</div>
+    <div id="legenda-items"></div>
+    <button onclick="fecharLegenda()" style="margin-top:16px;width:100%;background:linear-gradient(150deg,#f5c542,#c8880a);color:#fff;border:2px solid #7a5000;border-radius:20px;padding:10px;font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;box-shadow:0 3px 0 #5a3800">Fechar</button>
+  </div>
+</div>
+
+<script>
+// ── LEGENDA ──
+const LEGENDA = [
+  { icon: '🌱', nome: 'Cotilédone',       efeito: 'Avance 4 casas ⬆️' },
+  { icon: '🍎', nome: 'Fruto / Maçã',     efeito: 'Avance 3 casas ⬆️' },
+  { icon: '🐞', nome: 'Joaninha',          efeito: 'Avance 4 casas ⬆️' },
+  { icon: '🌸', nome: 'Flor (curiosidade)',efeito: 'Fique no lugar ✨' },
+  { icon: '🍇', nome: 'Uva',              efeito: 'BRINDE 🎁 — pegue seu prêmio!' },
+  { icon: '🎴', nome: 'Carta Bônus',      efeito: 'Responda +1 pergunta 📖' },
+  { icon: '❓', nome: 'Mistério',          efeito: 'Avança ou volta 2 casas 🎲' },
+  { icon: '🌼', nome: 'Margarida',         efeito: 'Volte 3 casas ⬇️' },
+  { icon: '🌵', nome: 'Cacto',             efeito: 'Pula 1 rodada ⏸️' },
+];
+
+function abrirLegenda() {
+  const items = document.getElementById('legenda-items');
+  items.innerHTML = '';
+  LEGENDA.forEach(l => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;background:rgba(0,0,0,.3);border-radius:10px';
+    row.innerHTML = `<span style="font-size:26px;flex-shrink:0">${l.icon}</span><div><div style="color:#dff0a0;font-size:14px;font-family:Fredoka One,cursive">${l.nome}</div><div style="color:#f5c542;font-size:13px;font-family:Segoe UI,sans-serif">${l.efeito}</div></div>`;
+    items.appendChild(row);
+  });
+  const m = document.getElementById('legenda-modal');
+  m.style.opacity = '1';
+  m.style.pointerEvents = 'auto';
+}
+
+function fecharLegenda() {
+  const m = document.getElementById('legenda-modal');
+  m.style.opacity = '0';
+  m.style.pointerEvents = 'none';
+}
+</script>
+
 </body>
 </html>
